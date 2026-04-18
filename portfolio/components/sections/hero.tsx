@@ -62,7 +62,7 @@ export function HeroSection() {
         <div className="relative z-10 mt-12 flex flex-col gap-10 md:mt-16 lg:mt-1 lg:flex-row lg:items-start lg:gap-0">
           <div className="relative z-20 flex shrink-0 flex-wrap items-center gap-3 lg:pt-[15px]">
           <Link
-             href="#footer"
+             href="/contact"
                className="relative inline-flex h-12 shrink-0 items-center justify-center rounded-full border-2 border-white bg-white px-8 text-[17.6px] font-medium uppercase leading-none text-black whitespace-nowrap shadow-sm transition-opacity hover:opacity-90"
                 >
                   <span className="relative z-10 text-black">Let&apos;s talk</span>

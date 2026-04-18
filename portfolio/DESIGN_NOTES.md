@@ -17,3 +17,4 @@
 - **Section order:** Hero → Recent work → About (Hello) → Expertise → Full-width gallery → Experience → Client logos → Footer (matches vertical composition from design context).
 - **Side nav** labels preserve Figma casing (e.g. `eXPEDRIENCE`); **Expertise** card (3) preserves copy including trailing “.T” as in source.
 - **Removed** prior generic sections and unused UI primitives after aligning to this file.
+- **Contact:** `/contact` route with `ContactPage` section; **`lib/site-contact.ts`** holds `CONTACT_EMAIL` so hero / recent work / header stay consistent with the mailto target.

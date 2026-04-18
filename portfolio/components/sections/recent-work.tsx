@@ -1,14 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { figmaAssets } from "@/lib/figma-assets";
 
 const projects = [
   {
     image: figmaAssets.projectA,
-    title: "SERVICE BOOKING",
+    title: "NEPTUNES",
     tag: "Web Design",
+    href: "/work/neptunes/",
   },
   {
     image: figmaAssets.projectB,
@@ -25,7 +27,12 @@ const projects = [
     title: "SERVICE BOOKING",
     tag: "Web Design",
   },
-] as const;
+] as const satisfies readonly {
+  image: string;
+  title: string;
+  tag: string;
+  href?: string;
+}[];
 
 export function RecentWorkSection() {
   return (
@@ -68,6 +75,29 @@ export function RecentWorkSection() {
             const staggerClass =
               i % 2 === 1 ? "md:translate-y-12 lg:translate-y-5" : "";
 
+            const card = (
+              <article className="block">
+                <div className="relative aspect-[1.43/1] w-full overflow-hidden bg-neutral-900">
+                  <Image
+                    src={p.image}
+                    alt={p.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
+
+                <div className="mt-4 flex items-end justify-between gap-4">
+                  <span className="font-[family-name:var(--font-instrument)] text-[15px] font-semibold uppercase leading-none tracking-[0.01em] text-white">
+                    {p.title}
+                  </span>
+                  <span className="shrink-0 font-[family-name:var(--font-inter)] text-[14px] leading-none text-white/55">
+                    {p.tag}
+                  </span>
+                </div>
+              </article>
+            );
+
             return (
               <motion.li
                 key={`${p.title}-${i}`}
@@ -77,26 +107,16 @@ export function RecentWorkSection() {
                 transition={{ duration: 0.45, delay: i * 0.05 }}
                 className={`group ${staggerClass}`}
               >
-                <article className="block">
-                  <div className="relative aspect-[1.43/1] w-full overflow-hidden bg-neutral-900">
-                    <Image
-                      src={p.image}
-                      alt={p.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-
-                  <div className="mt-4 flex items-end justify-between gap-4">
-                    <span className="font-[family-name:var(--font-instrument)] text-[15px] font-semibold uppercase leading-none tracking-[0.01em] text-white">
-                      {p.title}
-                    </span>
-                    <span className="shrink-0 font-[family-name:var(--font-inter)] text-[14px] leading-none text-white/55">
-                      {p.tag}
-                    </span>
-                  </div>
-                </article>
+                {"href" in p && p.href ? (
+                  <Link
+                    href={p.href}
+                    className="block rounded-sm outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40"
+                  >
+                    {card}
+                  </Link>
+                ) : (
+                  card
+                )}
               </motion.li>
             );
           })}
