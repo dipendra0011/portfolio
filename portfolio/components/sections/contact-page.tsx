@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FormEvent, useCallback } from "react";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { CONTACT_EMAIL } from "@/lib/site-contact";
 
 function fadeUp(delay = 0) {
@@ -14,7 +15,7 @@ function fadeUp(delay = 0) {
 }
 
 const fieldClass =
-  "w-full rounded-lg border border-border-nav bg-surface px-4 py-3 font-[family-name:var(--font-inter)] text-[15px] leading-relaxed text-white placeholder:text-body-subtle outline-none transition-[border-color,box-shadow] focus-visible:border-accent-lime focus-visible:ring-2 focus-visible:ring-ring";
+  "w-full rounded-lg border border-border-nav bg-surface-raised px-4 py-3 font-[family-name:var(--font-inter)] text-[15px] leading-relaxed text-foreground placeholder:text-body-subtle outline-none transition-[border-color,box-shadow] focus-visible:border-accent-lime focus-visible:ring-2 focus-visible:ring-ring";
 
 const labelClass =
   "mb-2 block font-[family-name:var(--font-display)] text-xs font-medium uppercase tracking-[0.12em] text-muted";
@@ -53,14 +54,14 @@ Email: ${email}`;
             >
               <Link
                 href="/"
-                className="text-muted transition-colors hover:text-white"
+                className="text-muted transition-colors hover:text-foreground"
               >
                 Home
               </Link>
               <span className="mx-2 text-border-nav" aria-hidden>
                 /
               </span>
-              <span className="text-white">Contact</span>
+              <span className="text-foreground">Contact</span>
             </motion.p>
           </div>
 
@@ -69,13 +70,13 @@ Email: ${email}`;
               <motion.h1
                 id="contact-heading"
                 {...fadeUp(0.04)}
-                className="font-[family-name:var(--font-display)] text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-[1.05] tracking-[-0.04em] text-white"
+                className="font-[family-name:var(--font-display)] text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-[1.05] tracking-[-0.04em] text-foreground"
               >
                 <span className="text-accent-lime">Let&apos;s</span> talk
               </motion.h1>
               <motion.p
                 {...fadeUp(0.1)}
-                className="mt-6 max-w-md font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] text-white/85"
+                className="mt-6 max-w-md font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] text-foreground/85"
               >
                 Share a bit about your project or role. Submitting opens your
                 email app with a draft to{" "}
@@ -136,14 +137,19 @@ Email: ${email}`;
                 />
               </div>
               <div className="pt-2">
-                <button
+                <MagneticButton className="flex w-full sm:inline-flex">
+                <motion.button
                   type="submit"
-                  className="relative flex h-12 w-full items-center justify-center rounded-full border border-border-nav bg-black px-8 outline outline-2 outline-offset-[-2px] outline-white transition-opacity hover:opacity-90 sm:w-auto"
+                  className="relative flex h-12 w-full items-center justify-center rounded-full border border-foreground bg-foreground px-8 outline outline-2 outline-offset-[-2px] outline-foreground transition-opacity hover:opacity-90 sm:w-auto"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 >
-                  <span className="font-[family-name:var(--font-instrument)] text-sm font-normal uppercase leading-5 text-white sm:text-[17.6px]">
+                  <span className="font-[family-name:var(--font-instrument)] text-sm font-normal uppercase leading-5 text-background sm:text-[17.6px]">
                     Send message
                   </span>
-                </button>
+                </motion.button>
+                </MagneticButton>
                 <p className="mt-4 font-[family-name:var(--font-inter)] text-sm text-body-subtle">
                   If nothing opens, copy{" "}
                   <span className="text-muted-strong">{CONTACT_EMAIL}</span> into

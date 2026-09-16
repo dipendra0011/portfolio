@@ -28,10 +28,10 @@ export function AboutHelloSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="font-[family-name:var(--font-display)] text-[clamp(4rem,12vw,6.25rem)] font-extrabold leading-none tracking-tight text-white">
+            <h2 className="font-[family-name:var(--font-display)] text-[clamp(4rem,12vw,6.25rem)] font-extrabold leading-none tracking-tight text-foreground">
               Hello.
             </h2>
-            <p className="max-w-[784px] font-[family-name:var(--font-display)] text-xl font-normal leading-[35px] text-white md:text-2xl">
+            <p className="max-w-[784px] font-[family-name:var(--font-display)] text-xl font-normal leading-[35px] text-foreground md:text-2xl">
               I&apos;m Dipendra. I&apos;ve spent the last few years working at the
               intersection of design and business — leading projects, shaping user
               experiences, and collaborating with teams to deliver products people
@@ -47,10 +47,10 @@ export function AboutHelloSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.06 }}
           >
-            <h3 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,2.5rem)] font-medium leading-7 text-white lg:max-w-[318px]">
+            <h3 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,2.5rem)] font-medium leading-7 text-foreground lg:max-w-[318px]">
               How I Can Help
             </h3>
-            <p className="max-w-[772px] font-[family-name:var(--font-display)] text-xl font-normal leading-[35px] text-white md:text-2xl">
+            <p className="max-w-[772px] font-[family-name:var(--font-display)] text-xl font-normal leading-[35px] text-foreground md:text-2xl">
               I help teams identify business opportunities and turn them into
               practical, user-centered solutions. From user research and strategy to
               UI/UX design and testing, I streamline the process to deliver products
