@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { CaseStudyContent } from "@/lib/case-study-content";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { figmaAssets } from "@/lib/figma-assets";
 
 function fadeUp(delay = 0) {
@@ -34,7 +35,7 @@ export function CaseStudyPage({ content }: Props) {
             <div>
               <motion.h1
                 {...fadeUp(0)}
-                className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,8vw,4.875rem)] font-medium uppercase leading-[0.95] tracking-[-0.04em] text-white"
+                className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,8vw,4.875rem)] font-medium uppercase leading-[0.95] tracking-[-0.04em] text-foreground"
               >
                 {content.title}
               </motion.h1>
@@ -45,7 +46,7 @@ export function CaseStudyPage({ content }: Props) {
                 {content.tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center border border-white/35 px-5 py-2.5 font-[family-name:var(--font-display)] text-xs font-medium uppercase tracking-[0.08em] text-white"
+                    className="inline-flex items-center border border-foreground/35 px-5 py-2.5 font-[family-name:var(--font-display)] text-xs font-medium uppercase tracking-[0.08em] text-foreground"
                   >
                     {t}
                   </span>
@@ -54,7 +55,7 @@ export function CaseStudyPage({ content }: Props) {
             </div>
             <motion.p
               {...fadeUp(0.1)}
-              className="max-w-[784px] font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] tracking-[0.01em] text-white/90 lg:pt-2"
+              className="max-w-[784px] font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] tracking-[0.01em] text-foreground/90 lg:pt-2"
             >
               {content.intro}
             </motion.p>
@@ -85,7 +86,7 @@ export function CaseStudyPage({ content }: Props) {
               {content.mockupSrc.map((src, i) => (
                 <div
                   key={i}
-                  className="relative aspect-[166/369] w-[min(100%,166px)] shrink-0 overflow-hidden bg-neutral-900 sm:w-[140px] md:w-[166px]"
+                  className="relative aspect-[166/369] w-[min(100%,166px)] shrink-0 overflow-hidden bg-surface sm:w-[140px] md:w-[166px]"
                 >
                   <Image
                     src={src}
@@ -98,19 +99,24 @@ export function CaseStudyPage({ content }: Props) {
               ))}
             </div>
             <div className="flex w-full flex-wrap items-center justify-end gap-6">
-              <button
+              <MagneticButton>
+              <motion.button
                 type="button"
-                className="inline-flex h-10 shrink-0 items-center justify-center border border-white bg-white px-4 font-[family-name:var(--font-display)] text-xs font-semibold uppercase tracking-[0.06em] text-black transition-opacity hover:opacity-90"
+                className="inline-flex h-10 shrink-0 items-center justify-center border border-foreground bg-foreground px-4 font-[family-name:var(--font-display)] text-xs font-semibold uppercase tracking-[0.06em] text-background transition-opacity hover:opacity-90"
                 onClick={() =>
                   document
                     .getElementById("case-overview")
                     ?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 View case study
-              </button>
+              </motion.button>
+              </MagneticButton>
               {content.mockupShowComingSoon ? (
-                <span className="font-[family-name:var(--font-display)] text-sm font-medium uppercase tracking-[0.12em] text-white/55">
+                <span className="font-[family-name:var(--font-display)] text-sm font-medium uppercase tracking-[0.12em] text-foreground/55">
                   Coming soon
                 </span>
               ) : null}
@@ -127,10 +133,10 @@ export function CaseStudyPage({ content }: Props) {
             {...fadeUp(idx * 0.05)}
             className="grid gap-8 lg:grid-cols-[minmax(0,318px)_1fr] lg:gap-x-12 xl:gap-x-24"
           >
-            <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,5vw,3.4rem)] font-medium uppercase leading-[1] tracking-[-0.03em] text-white lg:pt-2">
+            <h2 className="font-[family-name:var(--font-display)] text-[clamp(2rem,5vw,3.4rem)] font-medium uppercase leading-[1] tracking-[-0.03em] text-foreground lg:pt-2">
               {label}
             </h2>
-            <p className="max-w-[772px] font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] text-white/88 lg:pt-1">
+            <p className="max-w-[772px] font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] text-foreground/88 lg:pt-1">
               {body}
             </p>
           </motion.section>
@@ -145,7 +151,7 @@ export function CaseStudyPage({ content }: Props) {
           <div className="grid gap-12 lg:grid-cols-[minmax(0,369px)_1fr] lg:gap-x-8 xl:gap-x-16">
             <motion.h2
               {...fadeUp(0)}
-              className="font-[family-name:var(--font-display)] text-[clamp(2rem,5vw,3.4rem)] font-medium uppercase leading-[1] tracking-[-0.03em] text-white"
+              className="font-[family-name:var(--font-display)] text-[clamp(2rem,5vw,3.4rem)] font-medium uppercase leading-[1] tracking-[-0.03em] text-foreground"
             >
               Process
               <br />
@@ -158,10 +164,10 @@ export function CaseStudyPage({ content }: Props) {
               >
                 {content.process.steps.map((step) => (
                   <div key={step.title}>
-                    <h3 className="font-[family-name:var(--font-display)] text-base font-semibold uppercase tracking-[0.04em] text-white">
+                    <h3 className="font-[family-name:var(--font-display)] text-base font-semibold uppercase tracking-[0.04em] text-foreground">
                       {step.title}
                     </h3>
-                    <p className="mt-4 font-[family-name:var(--font-inter)] text-[15px] leading-[1.65] text-white/75">
+                    <p className="mt-4 font-[family-name:var(--font-inter)] text-[15px] leading-[1.65] text-foreground/75">
                       {step.body}
                     </p>
                   </div>
@@ -170,7 +176,7 @@ export function CaseStudyPage({ content }: Props) {
             ) : (
               <motion.p
                 {...fadeUp(0.08)}
-                className="max-w-[772px] font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] text-white/88"
+                className="max-w-[772px] font-[family-name:var(--font-inter)] text-[17px] leading-[1.65] text-foreground/88"
               >
                 {content.process.text}
               </motion.p>
@@ -180,7 +186,7 @@ export function CaseStudyPage({ content }: Props) {
       </section>
 
       <section className="w-full" aria-label="Project imagery">
-        <motion.div {...fadeUp(0)} className="relative aspect-[144/90] w-full bg-neutral-900">
+        <motion.div {...fadeUp(0)} className="relative aspect-[144/90] w-full bg-surface">
           <Image
             src={content.gallerySrc}
             alt={content.galleryAlt}
@@ -200,7 +206,7 @@ export function CaseStudyPage({ content }: Props) {
         <div className="page-figma mx-auto max-w-figma">
           <motion.h2
             {...fadeUp(0)}
-            className="font-[family-name:var(--font-display)] text-[clamp(2.5rem,7vw,5rem)] font-medium uppercase leading-[0.9] tracking-[-0.05em] text-white"
+            className="font-[family-name:var(--font-display)] text-[clamp(2.5rem,7vw,5rem)] font-medium uppercase leading-[0.9] tracking-[-0.05em] text-foreground"
           >
             More work
           </motion.h2>
@@ -211,8 +217,12 @@ export function CaseStudyPage({ content }: Props) {
                 {...fadeUp(i * 0.06)}
                 className={i % 2 === 1 ? "md:translate-y-8 lg:translate-y-6" : ""}
               >
-                <article className="group">
-                  <div className="relative aspect-[659/450] w-full overflow-hidden bg-neutral-900">
+                <motion.div
+                  className="group"
+                  whileHover={{ scale: 1.03, y: -4 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <div className="relative aspect-[659/450] w-full overflow-hidden bg-surface">
                     <Image
                       src={p.image}
                       alt={p.title}
@@ -222,14 +232,14 @@ export function CaseStudyPage({ content }: Props) {
                     />
                   </div>
                   <div className="mt-4 flex items-end justify-between gap-4">
-                    <span className="font-[family-name:var(--font-instrument)] text-[15px] font-semibold uppercase leading-none tracking-[0.01em] text-white">
+                    <span className="font-[family-name:var(--font-instrument)] text-[15px] font-semibold uppercase leading-none tracking-[0.01em] text-foreground">
                       {p.title}
                     </span>
-                    <span className="shrink-0 font-[family-name:var(--font-inter)] text-[14px] leading-none text-white/55">
+                    <span className="shrink-0 font-[family-name:var(--font-inter)] text-[14px] leading-none text-foreground/55">
                       {p.tag}
                     </span>
                   </div>
-                </article>
+                </motion.div>
               </motion.li>
             ))}
           </ul>

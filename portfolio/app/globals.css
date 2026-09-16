@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --surface: #0a0b0b;
-  --surface-raised: #161616;
-  --border-grey: #1d1d1d;
-  --border-nav: #222222;
-  --line-grey: #262626;
-  --foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.6);
-  --muted-strong: #949494;
-  --body-subtle: rgba(255, 255, 255, 0.5);
-  --accent-lime: #a1c900;
-  --ring: rgba(161, 201, 0, 0.45);
+  /* Lusion-inspired light theme: lavender mist, ink, electric indigo */
+  --background: #f0f1fa;
+  --surface: #e4e6ef;
+  --surface-raised: #ffffff;
+  --border-grey: #d5d7e3;
+  --border-nav: #c5c8d6;
+  --line-grey: #d0d2de;
+  --foreground: #111111;
+  --muted: rgba(17, 17, 17, 0.55);
+  --muted-strong: #2b2e3a;
+  --body-subtle: rgba(17, 17, 17, 0.5);
+  --accent-lime: #1a2ffb;
+  --ring: rgba(26, 47, 251, 0.35);
 }
 
 @theme inline {
@@ -63,8 +64,8 @@ a {
 }
 
 ::selection {
-  background: rgba(161, 201, 0, 0.35);
-  color: #ffffff;
+  background: rgba(26, 47, 251, 0.28);
+  color: #111111;
 }
 
 .max-w-figma {

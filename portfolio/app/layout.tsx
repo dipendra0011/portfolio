@@ -6,6 +6,8 @@ import {
   Poppins,
 } from "next/font/google";
 import "./globals.css";
+import { LenisProvider } from "@/components/lenis-provider";
+import { PageWipe } from "@/components/layout/page-wipe";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 
@@ -58,11 +60,15 @@ export default function RootLayout({
         className="min-h-full bg-background text-foreground"
         suppressHydrationWarning
       >
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </div>
+        <LenisProvider>
+          <PageWipe>
+            <div className="flex min-h-screen flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
+          </PageWipe>
+        </LenisProvider>
       </body>
     </html>
   );
