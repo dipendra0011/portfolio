@@ -8,6 +8,7 @@ import {
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import LenisProvider from "@/lib/lenis-provider";
 
 const display = Plus_Jakarta_Sans({
   variable: "--font-display",
@@ -58,11 +59,13 @@ export default function RootLayout({
         className="min-h-full bg-background text-foreground"
         suppressHydrationWarning
       >
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </div>
+        <LenisProvider>
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </div>
+        </LenisProvider>
       </body>
     </html>
   );

@@ -1,0 +1,20 @@
+.footer {
+  max-width: var(--section-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter) 48px;
+}
+
+.footer__copyright {
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding-bottom: 32px;
+  }
+}

@@ -1,0 +1,65 @@
+.about__statement-wrap {
+  position: relative;
+  /* Overrides the site-wide `body { cursor: none; }` (the fake dot/ring
+     cursor stands in for the OS arrow everywhere else) so the real arrow
+     shows here instead — same treatment as the Hero headline's
+     .hover-reveal, paired with data-cursor-hide in the component telling
+     CustomCursor to hide its own dot/ring while over this element. */
+  cursor: default;
+}
+
+.about__statement {
+  font-size: clamp(28px, 5.5vw, 74px);
+  line-height: 1.15;
+  max-width: 1300px;
+  /* Overrides the translucent --text-ghost inherited from .display-statement
+     — Experience's identical word-reveal effect uses the fully opaque
+     --white-dim, so even at the reveal's "opacity: 1" end state, About's
+     words were still rendering washed-out/translucent instead of solid. */
+  color: var(--white-dim);
+}
+
+.about__word {
+  display: inline-block;
+}
+
+.about__accent {
+  color: var(--accent);
+}
+
+.about__statement-mask {
+  position: absolute;
+  /* Same reasoning as the Hero headline's hover-reveal mask: extended
+     outward by the circle's own radius on every side so clip-path always
+     has room to draw a full circle, even hovering right at the
+     paragraph's edge — otherwise the circle gets flattened by the mask's
+     own box boundary. */
+  inset: calc(var(--about-reveal-radius, 120px) * -1);
+  clip-path: circle(
+    calc(var(--r, 0) * 1px) at calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px)
+  );
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.about__statement-mask-inner {
+  /* Cancels the mask's outward inset so this box exactly matches the base
+     paragraph's bounds. */
+  position: absolute;
+  inset: var(--about-reveal-radius, 120px);
+}
+
+.about__statement--alt {
+  color: var(--bg);
+  max-width: none;
+}
+
+/* The ink duplicate reuses the exact same markup as the base paragraph
+   (for guaranteed alignment), including the accent span — without this,
+   that span's own `color: var(--accent)` would win over the ancestor's
+   `--bg`, rendering it the same accent-blue as the circle's own fill and
+   making it disappear (the same invisibility bug fixed earlier on the
+   Hero kicker). */
+.about__statement--alt .about__accent {
+  color: var(--bg);
+}

@@ -1,0 +1,104 @@
+.what-i-do__label {
+  margin-bottom: 20px;
+}
+
+.what-i-do__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.what-i-do__row {
+  position: relative;
+  display: flex;
+  /* baseline alignment doesn't adapt to a fixed row height the way center
+     does — with a tight fixed height, baseline-aligning the huge title
+     risked pushing it past the row's own top/bottom edges into the
+     overflow:hidden clip. Center keeps it safely inside at every height. */
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  /* Breaks the row out of .section-shell's own left/right padding (equal
+     negative margin) then re-applies that same amount as inline padding —
+     the row's own box now spans the full viewport edge-to-edge, matching
+     the reference, while the title/description text lands back at the
+     normal gutter-aligned position. */
+  margin-inline: calc(var(--content-gutter) * -1);
+  /* Vertical padding is its own (smaller) value, not the shared --row-pad
+     used elsewhere (e.g. History) — tightened specifically for this
+     section so the title sits closer to the row edge without touching it. */
+  padding: 12px var(--content-gutter);
+  /* Fixed (viewport-scaled, not content-scaled) so every row sits in an
+     identically-sized slot regardless of description length — previously
+     row height was pure auto/content height, so a description that wrapped
+     to 2 lines (still invisible until hover) made that one row ~50px
+     taller than its neighbors. Tightened from clamp(140px, 13.5vw, 195px)
+     — verified against the title's max rendered line-box height (up to
+     92px font-size) plus padding at 375/768/1440px so text never clips
+     against the border. */
+  height: clamp(100px, 10vw, 150px);
+  border-top: 1px solid var(--white-faint);
+  overflow: hidden;
+}
+
+.what-i-do__list > .what-i-do__row:last-child {
+  border-bottom: 1px solid var(--white-faint);
+}
+
+/* The row's own hover feedback used to be a full-width ::before accent fill
+   plus a gradient-text sweep on the title — both replaced by
+   CursorRectReveal's cursor-tracked rectangle spotlight (scoped to the
+   title's own bounds, not the row), so neither exists here anymore. */
+.what-i-do__title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(32px, 6.5vw, 92px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--white-dim);
+}
+
+.what-i-do__description {
+  position: relative;
+  z-index: 1;
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--white-dim);
+  max-width: 320px;
+  text-align: right;
+  transition: color var(--dur-base) var(--ease-out);
+  /* Forces a single line so a longer description can't wrap and blow out
+     the row's fixed height — truncates with an ellipsis instead. Reset on
+     mobile below, where it needs to wrap naturally. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The row's title wipe now spans the full row width (see
+   cursor-rect-reveal.css), passing directly under this text — recolor to
+   stay legible against the accent fill once it's hovered. Keyed off the
+   same :hover state already driving the wipe via JS, so both stay synced
+   without extra wiring. */
+.what-i-do__title:hover ~ .what-i-do__description {
+  color: var(--bg);
+}
+
+@media (max-width: 768px) {
+  .what-i-do__row {
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .what-i-do__description {
+    text-align: left;
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}

@@ -1,0 +1,127 @@
+.history__label {
+  margin-bottom: 20px;
+}
+
+.history__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 140px 1fr 300px;
+  align-items: center;
+  gap: 24px;
+  /* Full-bleed, same trick as What I Do's row (what-i-do.css): break out of
+     .section-shell's own padding with an equal negative margin, then
+     re-apply that same amount as inline padding — the row's own box now
+     spans the full viewport edge-to-edge (so the hover fill reaches all the
+     way to both edges), while the text lands back at the normal
+     gutter-aligned position. */
+  margin-inline: calc(var(--content-gutter) * -1);
+  padding: var(--row-pad) var(--content-gutter);
+  border-top: 1px solid var(--white-faint);
+  overflow: hidden;
+  /* 140px year column + 24px gap: where the role text actually starts.
+     CursorRectReveal's mask (below) uses this to offset its alt text to
+     that same spot instead of the row's own left edge. */
+  --role-offset: 164px;
+}
+
+.history__list > .history-row:last-child {
+  border-bottom: 1px solid var(--white-faint);
+}
+
+.history-row__year {
+  position: relative;
+  z-index: 1;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 40px);
+  letter-spacing: -0.02em;
+  color: var(--white-dim);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+/* Hover reveal — the same CursorRectReveal mechanic as What I Do's row
+   titles (cursor-rect-reveal.tsx/css): hovering the text alone wipes an
+   accent rectangle across the FULL row (the mask resolves against this
+   row, the nearest positioned ancestor) and swaps in the alt line. Only the
+   mask's padding-left and this wrapper's own sizing are history-specific —
+   everything else is the shared component's default behavior. */
+.history-row__role {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 40px);
+  letter-spacing: -0.02em;
+  color: var(--white-dim);
+  transition: color var(--dur-base) var(--ease-out);
+  /* Grid items stretch to fill their column by default — this keeps the
+     wrapper (and therefore its mouseenter hit-box) hugging the text width,
+     same as What I Do's flex row does natively. */
+  justify-self: start;
+  width: fit-content;
+}
+
+.history-row .cursor-rect-reveal__mask {
+  padding-top: var(--row-pad);
+  padding-bottom: var(--row-pad);
+  padding-right: var(--content-gutter);
+  /* Same base gutter as the row's own left padding, plus the role's
+     position within the grid — the mask has to sync both, not just one. */
+  padding-left: calc(var(--content-gutter) + var(--role-offset));
+}
+
+.history-row__meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+
+.history-row__company {
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white-dim);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.history-row__description {
+  font-family: var(--label);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--white-dim);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Same idea as What I Do's `.what-i-do__title:hover ~ .what-i-do__description`
+     — recolor whatever sits under the accent wipe once it's open. Year comes
+     BEFORE the role in the DOM (general sibling only reaches later
+     elements), so it needs :has() on the row instead of a sibling selector. */
+  .history-row:has(.history-row__role:hover) .history-row__year {
+    color: var(--bg);
+  }
+
+  .history-row__role:hover ~ .history-row__meta .history-row__company,
+  .history-row__role:hover ~ .history-row__meta .history-row__description {
+    color: var(--bg);
+  }
+}
+
+@media (max-width: 768px) {
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    --role-offset: 0px;
+  }
+
+  .history-row__meta {
+    text-align: left;
+  }
+}

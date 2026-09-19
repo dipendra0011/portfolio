@@ -1,0 +1,33 @@
+/* Custom Cursor Styles */
+@media (hover: none), (pointer: coarse) {
+  .cursor,
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* Size changes are driven by GSAP `scale` (see CustomCursor.jsx) so nothing
+   here animates a layout property. CSS only owns the paint-level state. */
+.cursor {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998;
+}

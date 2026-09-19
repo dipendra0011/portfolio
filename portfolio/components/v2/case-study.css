@@ -1,0 +1,366 @@
+/* ---------------------------------------------------------------- back nav */
+
+/* Fixed, and rendered outside #smooth-wrapper (see case-study.tsx) —
+   ScrollSmoother transforms #smooth-content into a containing block, so a
+   fixed element inside it would scroll away with the content. */
+.case-study__back {
+  position: fixed;
+  top: var(--gutter);
+  left: var(--gutter);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 12px;
+  border: 1px solid var(--white-faint);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(8px);
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.case-study__back-icon {
+  display: flex;
+  font-size: 18px;
+  /* The shared ArrowRight points right; this is a "back" affordance. */
+  transform: rotate(180deg);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .case-study__back:hover {
+    color: var(--white);
+    border-color: var(--border-strong);
+  }
+
+  .case-study__back:hover .case-study__back-icon {
+    transform: rotate(180deg) translateX(4px);
+  }
+}
+
+/* ------------------------------------------------------------------- hero */
+
+.case-study__hero {
+  position: relative;
+  padding-bottom: var(--section-pad);
+}
+
+.case-study__hero-media {
+  position: relative;
+  width: 100%;
+  height: clamp(320px, 74vh, 860px);
+  overflow: hidden;
+}
+
+.case-study__hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.case-study__hero-body {
+  /* The shell's own vertical padding would double up under the media. */
+  padding-block: 56px 0;
+}
+
+.case-study__eyebrow {
+  margin-bottom: 20px;
+}
+
+.case-study__title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(36px, 7vw, 96px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--white-dim);
+  max-width: 18ch;
+}
+
+.case-study__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  /* The hero image is arbitrary, so the hint needs its own ground to stay
+     legible against whatever sits behind it. */
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(8px);
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+  white-space: nowrap;
+  animation: case-study-hint-bob 1.8s ease-in-out infinite;
+}
+
+@keyframes case-study-hint-bob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 6px);
+  }
+}
+
+/* ------------------------------------------------------------------- body */
+
+.case-study__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 64px;
+  align-items: start;
+}
+
+.case-study__paragraph {
+  font-family: var(--sans);
+  font-size: clamp(18px, 1.9vw, 26px);
+  line-height: 1.5;
+  color: var(--white-dim);
+  max-width: 56ch;
+}
+
+.case-study__paragraph + .case-study__paragraph {
+  margin-top: 28px;
+}
+
+/* Per-word spans are what the scrub animates — inline-block so their opacity
+   animates independently without collapsing the line box. The separating
+   space is carried inside the span (see <Words> in case-study.tsx) rather
+   than as a ::before, so selecting and copying the text still yields real
+   spaces. */
+.case-study__word {
+  display: inline-block;
+}
+
+.case-study__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.case-study__meta-label {
+  margin-bottom: 16px;
+}
+
+.case-study__services,
+.case-study__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.case-study__service {
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white-dim);
+  padding: 10px 0;
+  border-top: 1px solid var(--white-faint);
+}
+
+.case-study__service:last-child {
+  border-bottom: 1px solid var(--white-faint);
+}
+
+.case-study__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 10px 0;
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white-dim);
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.case-study__link-icon {
+  font-size: 14px;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .case-study__link:hover {
+    color: var(--accent);
+  }
+
+  .case-study__link:hover .case-study__link-icon {
+    transform: translate(2px, -2px);
+  }
+}
+
+/* ---------------------------------------------------------- next project */
+
+.case-study__next {
+  border-top: 1px solid var(--white-faint);
+}
+
+.case-study__next-inner {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.case-study__next-label {
+  margin-bottom: 24px;
+}
+
+.case-study__next-media {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.case-study__next-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.case-study__next-title {
+  margin-top: 28px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(28px, 4.2vw, 60px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--white-dim);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .case-study__next-inner:hover .case-study__next-media img {
+    transform: scale(1.04);
+  }
+
+  .case-study__next-inner:hover .case-study__next-title {
+    color: var(--white);
+  }
+}
+
+/* --------------------------------------------------------------- cta ----- */
+
+.case-study__cta {
+  border-top: 1px solid var(--white-faint);
+  padding-bottom: var(--section-pad);
+  overflow: hidden;
+}
+
+.case-study__cta-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(40px, 9vw, 140px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--white-dim);
+}
+
+/* ------------------------------------------------------------- marquee --- */
+
+.case-study__marquee {
+  overflow: hidden;
+  border-top: 1px solid var(--white-faint);
+  border-bottom: 1px solid var(--white-faint);
+  padding: 20px 0;
+}
+
+.case-study__marquee-track {
+  display: flex;
+  width: max-content;
+  animation: case-study-marquee 26s linear infinite;
+}
+
+/* Exactly two identical runs, so translating the track by -50% lands the
+   second run precisely where the first began. */
+.case-study__marquee-run {
+  display: flex;
+}
+
+.case-study__marquee-item {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 56px);
+  letter-spacing: -0.02em;
+  color: var(--text-ghost);
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Spacing must be trailing margin INSIDE the item, not a flex gap on the
+     track: a gap isn't reproduced at the wrap point, so -50% would land one
+     gap short and the loop would visibly hitch every cycle. */
+  margin-right: 0.5em;
+}
+
+@keyframes case-study-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* global.css forces `animation-duration: 0.01ms !important` on everything
+   under reduced motion, which would *snap* the track to -50% (mid-seam)
+   rather than stop it. Stopping it explicitly is the correct behavior. */
+@media (prefers-reduced-motion: reduce) {
+  .case-study__marquee-track {
+    animation: none;
+    transform: none;
+  }
+
+  .case-study__hint {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------- responsive --- */
+
+@media (max-width: 1024px) {
+  .case-study__body {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .case-study__meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 40px 64px;
+  }
+}
+
+@media (max-width: 768px) {
+  .case-study__back {
+    top: 16px;
+    left: 16px;
+    padding: 8px 14px 8px 10px;
+    font-size: 12px;
+  }
+
+  .case-study__hero-media {
+    height: clamp(240px, 52vh, 480px);
+  }
+
+  .case-study__hero-body {
+    padding-block: 40px 0;
+  }
+}

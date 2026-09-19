@@ -1,0 +1,58 @@
+.testimonials__quote {
+  margin: 0;
+  max-width: 900px;
+}
+
+.testimonials__text {
+  font-size: clamp(24px, 4vw, 44px);
+  line-height: 1.35;
+  margin-bottom: 32px;
+}
+
+.testimonials__attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-style: normal;
+}
+
+.testimonials__name {
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white);
+}
+
+.testimonials__role {
+  font-family: var(--label);
+  font-size: 14px;
+  color: var(--white-dim);
+}
+
+.testimonials__dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 40px;
+}
+
+.testimonials__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--white-faint);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+.testimonials__dot.is-active {
+  background: var(--accent);
+  transform: scale(1.25);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .testimonials__dot:hover {
+    background: var(--white-dim);
+  }
+}

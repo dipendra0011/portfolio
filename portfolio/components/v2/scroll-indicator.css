@@ -1,0 +1,69 @@
+.scroll-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  width: 88px;
+  height: 88px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--white-dim);
+}
+
+.scroll-indicator__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: var(--white-dim);
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 8.5px;
+  letter-spacing: 0.05em;
+  animation: scroll-indicator-spin 16s linear infinite;
+}
+
+.scroll-indicator__arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  color: inherit;
+  animation: scroll-indicator-bob 1.8s ease-in-out infinite;
+}
+
+.scroll-indicator:hover {
+  color: var(--accent);
+}
+
+@keyframes scroll-indicator-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scroll-indicator-bob {
+  0%, 100% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, -35%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-indicator__ring,
+  .scroll-indicator__arrow {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .scroll-indicator {
+    display: none;
+  }
+}

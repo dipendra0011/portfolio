@@ -1,0 +1,55 @@
+.hover-reveal {
+  position: relative;
+  /* Overrides the site-wide `body { cursor: none; }` (the fake dot/ring
+     cursor is meant to stand in for the OS arrow everywhere else) so the
+     real arrow shows over the headline instead. Paired with
+     data-cursor-hide in the component, which tells CustomCursor to hide
+     its own dot/ring while over this element — otherwise both would
+     render at once. */
+  cursor: default;
+}
+
+.hover-reveal__base {
+  font: inherit;
+  margin: 0;
+}
+
+.hover-reveal__line {
+  display: block;
+  /* Each array entry is meant to render as exactly one visual line. Without
+     this, a hover-line phrase noticeably wider than its base-line
+     counterpart (e.g. "FROM DRIBBBLE" vs "LIKE YOU") could wrap onto two
+     lines while the other doesn't, desyncing every line below it between
+     the base and alt layers. */
+  white-space: nowrap;
+}
+
+.hover-reveal__mask {
+  position: absolute;
+  /* Extended outward by the circle's own radius on every side. clip-path
+     can only ever paint within its own element's box, so if this box were
+     sized to the tight text bounds (inset: 0), the circle would get
+     flattened by that boundary whenever the cursor is near the headline's
+     top/bottom/left/right edge — that was the original bug. */
+  inset: calc(var(--reveal-radius, 140px) * -1);
+  /* --r/--mx/--my are unitless numbers set from JS; calc() applies px here
+     so a reduced-motion fallback (unset vars, default 0) closes the mask
+     instead of leaving an invalid clip-path. */
+  clip-path: circle(calc(var(--r, 0) * 1px) at calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px));
+  /* Solid fill so the clipped circle fully occludes the base text underneath
+     — without this, the alt text just double-exposes on top of the base
+     text instead of "swapping" as it passes over. */
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.hover-reveal__mask-inner {
+  /* Cancels the mask's outward inset so this box exactly matches the base
+     text's original bounds. */
+  position: absolute;
+  inset: var(--reveal-radius, 140px);
+}
+
+.hover-reveal__base--alt {
+  color: var(--bg);
+}

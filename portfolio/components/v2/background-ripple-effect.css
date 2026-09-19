@@ -1,0 +1,68 @@
+.background-ripple {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  /* Same reasoning as the earlier aurora background: fades the grid out
+     near the section edges instead of cutting off hard against the next
+     section's flat background. */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 15%,
+    black 70%,
+    transparent 100%
+  );
+}
+
+.background-ripple__grid {
+  display: grid;
+  grid-auto-rows: 56px;
+  width: 100%;
+  height: 100%;
+}
+
+.background-ripple__cell {
+  position: relative;
+  border: 0.5px solid rgba(255, 255, 255, 0.06);
+  background-color: rgba(255, 255, 255, 0.015);
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+  will-change: transform, opacity;
+}
+
+.background-ripple__cell:hover {
+  opacity: 0.8;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* The actual "cell-ripple" keyframe shipped by the aceternity registry
+   wasn't present anywhere in the installed package (checked node_modules
+   directly) — this is a from-scratch recreation matching the component's
+   own logic: each cell briefly flashes brighter than its resting opacity,
+   then settles back, offset by --delay/--duration (set per-cell based on
+   distance from the clicked cell) so it reads as an outward-radiating
+   wave rather than every cell flashing in sync. */
+.background-ripple__cell.is-rippling {
+  animation: cell-ripple var(--duration, 300ms) ease-out var(--delay, 0ms);
+  animation-fill-mode: none;
+}
+
+@keyframes cell-ripple {
+  0% {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.16);
+  }
+  100% {
+    opacity: 0.4;
+    background-color: rgba(255, 255, 255, 0.015);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .background-ripple__cell.is-rippling {
+    animation: none;
+  }
+}

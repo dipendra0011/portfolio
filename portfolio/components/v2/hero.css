@@ -1,0 +1,65 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  text-align: center;
+  padding: 160px var(--gutter) 80px;
+}
+
+.hero__kicker {
+  /* The reveal circle's mask is deliberately extended `radius`px beyond the
+     headline's own box on every side (so clip-path has room to draw a full
+     circle near the headline's edges) — that means hovering near the top
+     of the first line can geometrically reach up into the kicker's space.
+     A flex item's z-index doesn't need `position` set to take effect, and
+     this puts the kicker above that whole subtree (which is z-index:auto)
+     regardless of DOM order. z-index applies to flex items without needing
+     `position` set. */
+  position: relative;
+  z-index: 2;
+  color: var(--accent);
+}
+
+.hero__kicker-ink {
+  /* Dark-ink duplicate of the kicker text, clipped to the same circle
+     geometry as the headline's own hover-swap mask (--kicker-r/mx/my are
+     set from Hero's onTrack callback, echoing HoverRevealText's circle).
+     Without this the kicker (accent-colored) and the circle (also
+     accent-colored) are the same hue where they overlap — zero contrast,
+     so the text just disappears into the fill instead of reading as ink
+     on top of it. */
+  position: absolute;
+  inset: 0;
+  color: var(--bg);
+  clip-path: circle(
+    calc(var(--kicker-r, 0) * 1px) at calc(var(--kicker-mx, 0) * 1px) calc(var(--kicker-my, 0) * 1px)
+  );
+  pointer-events: none;
+}
+
+.hero__headline {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(32px, 7vw, 108px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.hero__accent {
+  /* Same token driving the hover-reveal circle (--accent, #5c7cfa) — not a
+     second, hand-picked purple that could drift out of sync with it. */
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding-top: 120px;
+    gap: 24px;
+  }
+}

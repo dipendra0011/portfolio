@@ -1,0 +1,187 @@
+.projects__intro {
+  margin-bottom: 96px;
+  max-width: 900px;
+}
+
+.projects__headline {
+  font-size: clamp(32px, 6vw, 74px);
+  line-height: 1.05;
+  margin-bottom: 24px;
+  /* Overrides the translucent --text-ghost inherited from .display-statement
+     — same fix as About/What-I-Do: a translucent base color means the text
+     still looks washed out even once the scroll-scrub's opacity reaches 1. */
+  color: var(--white-dim);
+}
+
+.projects__word {
+  display: inline-block;
+}
+
+.projects__subtext {
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  max-width: 620px;
+}
+
+/* Project grid — Lusion-reference 2x2 card layout. The card images are
+   rendered as shader-displaced WebGL planes (projects-canvas.tsx) that track
+   these boxes, so anything that changes a card's size or position here has
+   to stay observable by that component's ResizeObserver. */
+.projects__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(40px, 5vw, 72px) clamp(20px, 3vw, 40px);
+}
+
+/* Shared WebGL surface for every card image (projects-canvas.tsx). It sits
+   above the grid's own background but below the cards, and never takes
+   pointer events — the cards underneath are real links and must stay
+   clickable and focusable. */
+.projects__canvas {
+  position: absolute;
+  /* Bled 120px past the grid on every side (BLEED in projects-canvas.tsx —
+     keep the two in sync). Grid columns run edge to edge, so a card bending
+     toward the viewer at a grid edge would otherwise be sliced off by the
+     canvas boundary. */
+  inset: -120px;
+  /* Explicit sizes, not just the insets. A <canvas> is a replaced element, so
+     width:auto resolves to its *intrinsic* size (the width/height attributes,
+     which three sets to CSS size x devicePixelRatio) and the insets get
+     ignored — on a 2x display that laid the canvas out at double size and
+     scaled every card image up to match. */
+  width: calc(100% + 240px);
+  height: calc(100% + 240px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Added only once the texture has decoded, so the real <img> stays visible
+   until there's something to replace it with. Without WebGL (reduced motion,
+   touch, small viewport, no context) this class never lands and the plain
+   images are simply what you see. */
+.projects__grid--gl .project-card__media img {
+  opacity: 0;
+}
+
+.project-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  /* z-index only applies to positioned elements — without this the card's
+     stacking against the canvas would be accidental DOM order. */
+  position: relative;
+  z-index: 2;
+  min-width: 0; /* grid items default to min-content; without this a long
+                   unbreakable title would widen the column */
+}
+
+.project-card__media {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.project-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1);
+  /* Pure CSS, not GSAP — a simple binary hover state, same reasoning as
+     every other hover-zoom in this project. */
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover .project-card__media img {
+    transform: scale(1.05);
+  }
+}
+
+.project-card__tags {
+  margin-top: 20px;
+  font-family: var(--label);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.project-card__title-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* At rest the arrow has zero width and sits flush against the title — on
+   hover it expands open (width + margin, not just opacity/transform), which
+   is what actually pushes the title to the right rather than revealing the
+   arrow into space already reserved for it. overflow:hidden clips the icon
+   while its box is collapsed. */
+.project-card__arrow {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* Matches .project-card__title's own clamp so the arrow reads at the same
+     scale as the text it sits next to (was a fixed 20px — visibly smaller
+     than the title at every breakpoint, unlike the reference). The icon
+     itself is sized in em (arrow-right.tsx), so this is the only place the
+     size is set. */
+  font-size: clamp(24px, 3vw, 40px);
+  width: 0;
+  margin-right: 0;
+  opacity: 0;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-right 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover .project-card__arrow {
+    width: 1em;
+    margin-right: 0.3em;
+    opacity: 1;
+  }
+}
+
+.project-card__title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--white-dim);
+}
+
+/* Tablet / small laptop: still 2x2, just tighter type. No arrow-gutter
+   adjustment needed here anymore — the arrow no longer reserves permanent
+   space, it only takes width on hover. */
+@media (max-width: 1024px) {
+  .project-card__tags {
+    margin-top: 16px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects__intro {
+    margin-bottom: 56px;
+  }
+
+  .projects__grid {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+
+  /* No hover on touch, so the arrow never appears — it's already zero-width
+     at rest, this just skips rendering it at all. */
+  .project-card__arrow {
+    display: none;
+  }
+
+  .project-card__title {
+    font-size: clamp(22px, 6vw, 32px);
+  }
+}

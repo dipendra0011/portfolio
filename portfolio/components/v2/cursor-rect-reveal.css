@@ -1,0 +1,34 @@
+.cursor-rect-reveal {
+  /* No position: relative here on purpose — leaving this unpositioned lets
+     .cursor-rect-reveal__mask's `position: absolute` skip past this tight,
+     text-sized wrapper and resolve against the next positioned ancestor up
+     the tree instead (.what-i-do__row), so the mask fills the whole row
+     edge-to-edge while this wrapper (and therefore the mouseenter/
+     mouseleave hit-testing) stays exactly as tight as the title text. */
+  display: inline-block;
+}
+
+.cursor-rect-reveal__base {
+  font: inherit;
+  margin: 0;
+}
+
+.cursor-rect-reveal__mask {
+  position: absolute;
+  inset: 0;
+  /* Reproduces .what-i-do__row's own align-items/padding (what-i-do.css)
+     so the alt title text — now the only child of a row-sized box instead
+     of a text-sized one — lands exactly where the real title sits. These
+     values are intentionally duplicated from that row's own CSS and must
+     stay in sync with it. */
+  display: flex;
+  align-items: center;
+  padding: 12px var(--content-gutter);
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.cursor-rect-reveal__base--alt {
+  color: var(--bg);
+  white-space: nowrap;
+}

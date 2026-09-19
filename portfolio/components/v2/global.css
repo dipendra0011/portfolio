@@ -1,0 +1,202 @@
+/* Global Design System */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Surface */
+  --bg: #0d0d0d;
+
+  /* Text — one scale, one hue */
+  --white: #fcfcfc;
+  --white-dim: #b0abb8;
+  --text-muted: rgba(176, 171, 184, 0.7); /* 4.7:1 on --bg, passes AA for small text */
+  --text-ghost: rgba(176, 171, 184, 0.35); /* display-only, never small text */
+  --white-faint: rgba(176, 171, 184, 0.15); /* hairline dividers */
+  --border-strong: rgba(176, 171, 184, 0.25); /* card edges — one step up from a divider */
+
+  /* Accent */
+  --accent: #5c7cfa;
+  /* Lightened well past --accent (not just a subtle tint) — needs enough
+     luminance contrast to read as a bright highlight streak against the
+     mid-tone --accent fill it sweeps over in what-i-do's hover, not just
+     blend into it. */
+  --accent-light: #d6defe;
+
+  /* Type */
+  --sans: var(--font-v2-sans), sans-serif;
+  --label: var(--font-v2-label), sans-serif;
+
+  /* Layout */
+  --gutter: clamp(20px, 4.2vw, 100px);
+  /* Deeper, symmetric inset for section body copy — nav stays at --gutter.
+     Matches minhpham.design's measured column width (~16.86vw above 1200px,
+     ~8.5vw below it) and the original Figma spec's calc(8.33% + 169px). */
+  --content-gutter: clamp(var(--gutter), 16.86vw, 340px);
+  --section-max: 1600px;
+  --section-pad: 112px;
+  --row-pad: 40px;
+
+  /* Motion */
+  --dur-fast: 0.2s;
+  --dur-base: 0.4s;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+}
+
+html {
+  overscroll-behavior: none;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+p {
+  margin: 0;
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  /* The extra offset keeps a fractional height from antialiasing into view. */
+  transform: translateY(calc(-100% - 16px));
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* Section primitives */
+.section-shell {
+  max-width: var(--section-max);
+  margin: 0 auto;
+  padding: var(--section-pad) var(--content-gutter);
+}
+
+.section-label {
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+  margin-bottom: 32px;
+}
+
+.section-label--flush {
+  margin-bottom: 0;
+}
+
+/* Display statements — ghost by design, lifted under prefers-contrast */
+.display-statement {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-ghost);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--white-faint);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --content-gutter: clamp(var(--gutter), 8.5vw, 170px);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --gutter: 24px;
+    --content-gutter: var(--gutter); /* no room for a deeper inset on mobile */
+    --section-pad: 72px;
+    --row-pad: 24px;
+  }
+}
+
+/* The ghost look is the design; lift it only when the user asks for more contrast. */
+@media (prefers-contrast: more) {
+  :root {
+    --text-ghost: rgba(176, 171, 184, 0.75);
+    --white-faint: rgba(176, 171, 184, 0.35);
+    --border-strong: rgba(176, 171, 184, 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* A lagging custom cursor is itself motion — hand back the real one. */
+  body {
+    cursor: auto;
+  }
+
+  .cursor,
+  .cursor-ring {
+    display: none;
+  }
+}
