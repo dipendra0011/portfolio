@@ -17,14 +17,12 @@ const label = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Dipendra Shrestha — v2",
-  description: "Alternate concept: GSAP ScrollSmoother, hover-reveal hero, custom cursor.",
+  title: "Dipendra Shrestha · Product Designer & Digital Marketer",
+  description:
+    "Portfolio of Dipendra Shrestha — product design, web design, and digital marketing.",
 };
 
-// Separate root layout (own <html>/<body>) via Next's multiple-root-layouts
-// route-group pattern, so this concept doesn't inherit the main site's
-// Tailwind globals, Lenis provider, or SiteHeader/SiteFooter.
-export default function V2Layout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${label.variable}`}>
       <body>{children}</body>

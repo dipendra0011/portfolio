@@ -146,7 +146,7 @@ export function CaseStudy({ project, nextProject }: { project: Project; nextProj
           transforms #smooth-content, which makes it a containing block and
           would turn any fixed descendant into a content-relative element that
           scrolls away. Same reason the v2 page keeps its chrome outside. */}
-      <Link href="/v2/#projects" className="case-study__back" data-cursor-hover>
+      <Link href="/#projects" className="case-study__back" data-cursor-hover>
         <span className="case-study__back-icon">
           <ArrowRight strokeWidth={1.5} />
         </span>

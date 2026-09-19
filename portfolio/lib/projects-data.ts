@@ -2,7 +2,7 @@
  * Shared project data for the v2 site.
  *
  * Deliberately NOT a "use client" module: the static-export route at
- * app/(v2)/v2/work/[slug]/page.tsx is a server component (generateStaticParams
+ * app/work/[slug]/page.tsx is a server component (generateStaticParams
  * can't live in a client file) and imports this, while components/v2/projects.tsx
  * imports the same array on the client. One source of truth for both.
  */
@@ -21,7 +21,7 @@ export type Project = {
   /** Trailing slash is required — next.config.ts sets `trailingSlash: true`. */
   href: string;
   /** Grid thumbnail. Root-relative: a relative path would resolve wrong at
-   *  the /v2/work/<slug>/ depth. */
+   *  the /work/<slug>/ depth. */
   image: string;
   /** Detail page hero. Same asset as `image` until real art exists. */
   heroImage: string;
@@ -38,7 +38,7 @@ export const PROJECTS: Project[] = [
     slug: "neptunes",
     title: "Building loyalty, made tangible.",
     tags: ["Concept", "Web", "Design", "Development"],
-    href: "/v2/work/neptunes/",
+    href: "/work/neptunes/",
     image: "/images/figma/project-a.png",
     heroImage: "/images/figma/project-a.png",
     description: [
@@ -54,7 +54,7 @@ export const PROJECTS: Project[] = [
     slug: "service-booking",
     title: "Turning bookings into a service you trust.",
     tags: ["Concept", "Web", "Design", "Development"],
-    href: "/v2/work/service-booking/",
+    href: "/work/service-booking/",
     image: "/images/figma/project-b.png",
     heroImage: "/images/figma/project-b.png",
     description: [
@@ -67,7 +67,7 @@ export const PROJECTS: Project[] = [
     slug: "onboarding",
     title: "Making onboarding feel effortless.",
     tags: ["Product", "Web", "Design"],
-    href: "/v2/work/onboarding/",
+    href: "/work/onboarding/",
     image: "/images/figma/project-c.png",
     heroImage: "/images/figma/project-c.png",
     description: [
@@ -79,7 +79,7 @@ export const PROJECTS: Project[] = [
     slug: "campaigns",
     title: "Campaigns built to be remembered.",
     tags: ["Graphics", "Brand", "Art Direction"],
-    href: "/v2/work/campaigns/",
+    href: "/work/campaigns/",
     image: "/images/figma/gallery.jpg",
     heroImage: "/images/figma/gallery.jpg",
     description: [
