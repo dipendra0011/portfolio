@@ -1,0 +1,45 @@
+/*
+ * Letter roll — each character slides up and a blue copy (a text-shadow
+ * offset one "slot" below) rolls into its place, staggered left to right,
+ * so the link settles in --blue once the roll finishes.
+ * Triggered by hovering/focusing the nearest `.roll-trigger` ancestor.
+ */
+.roll-text {
+  --roll-distance: 1.3em;
+  --roll-color: var(--blue);
+  display: inline-flex;
+  overflow: hidden;
+  /* Room for descenders (g, y) inside the clip, without shifting the baseline */
+  padding-block: 0.15em;
+  margin-block: -0.15em;
+  vertical-align: bottom;
+}
+
+.roll-text__char {
+  display: inline-block;
+  white-space: pre;
+  text-shadow: 0 var(--roll-distance) var(--roll-color);
+  transition: transform 600ms var(--ease-roll);
+  transition-delay: calc(var(--i) * 18ms);
+}
+
+@media (hover: hover) {
+  .roll-trigger:hover .roll-text__char {
+    transform: translateY(calc(-1 * var(--roll-distance)));
+  }
+}
+
+.roll-trigger:focus-visible .roll-text__char {
+  transform: translateY(calc(-1 * var(--roll-distance)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-text__char {
+    transition: none;
+    transform: none !important;
+  }
+  .roll-trigger:hover .roll-text__char,
+  .roll-trigger:focus-visible .roll-text__char {
+    color: var(--roll-color);
+  }
+}

@@ -1,0 +1,385 @@
+/*
+ * Paubha — Design Tokens
+ * Mirrors Figma Foundations / Colors exactly: two layers, always.
+ *   1. Primitives (raw scales, single mode)
+ *   2. Semantic (light + dark) — components ONLY reference semantic tokens.
+ *
+ * Source: Dipendra-Testing · Foundations / Colors (2066:14533)
+ *         Spacing (2066:14532) · Typography (2066:14528)
+ */
+
+:root,
+[data-preview-theme="light"] {
+  color-scheme: light;
+
+  /* ============================================================
+     PRIMITIVES
+     ============================================================ */
+
+  --base-white: #ffffff;
+  --base-black: #000000;
+
+  /* brand — true blue; brand/600 is primary
+     Corrected 2026-09-11 — full ramp re-synced against Figma's current
+     "Brand Palette" frame (Foundations / Colors, node 2066:14533 ->
+     6180:1277), which now generates the ramp from brand/500 = #4469E5 as
+     keystone. Confirmed via two independent, mutually-consistent swatches
+     on that same canonical page (Brand Palette ramp + Status Colors "Info"
+     panel, both #4469E5) — see SYNC_LOG.md Phase 1 entry. */
+  --brand-50: #f0f4fe;
+  --brand-100: #dde5fc;
+  --brand-200: #c2d1f9;
+  --brand-300: #98b3f4;
+  --brand-400: #678bec;
+  --brand-500: #4469e5;
+  --brand-600: #2e4dd9;
+  --brand-700: #273ec7;
+  --brand-800: #2535a2;
+  --brand-900: #243380;
+  --brand-950: #1a2150;
+
+  /* gray — cool bias to harmonize with brand
+     Corrected 2026-09-11 — gray-200 and gray-800 re-synced against Figma's
+     "Neutral Palette" frame (Foundations / Colors, node 6180:1325); the
+     other 9 steps already matched exactly. */
+  --gray-50: #f9fafb;
+  --gray-100: #f2f4f7;
+  --gray-200: #eaecf0;
+  --gray-300: #d0d5dd;
+  --gray-400: #98a2b3;
+  --gray-500: #667085;
+  --gray-600: #475467;
+  --gray-700: #344054;
+  --gray-800: #182230;
+  --gray-900: #101828;
+  --gray-950: #0c111d;
+
+  /* error */
+  --error-50: #fef3f2;
+  --error-100: #fee4e2;
+  --error-200: #fecdca;
+  --error-300: #fda29b;
+  --error-400: #f97066;
+  --error-500: #f04438;
+  --error-600: #d92d20;
+  --error-700: #b42318;
+  --error-800: #912018;
+  --error-900: #7a271a;
+  --error-950: #55160c;
+
+  /* warning */
+  --warning-50: #fffaeb;
+  --warning-100: #fef0c7;
+  --warning-200: #fedf89;
+  --warning-300: #fec84b;
+  --warning-400: #fdb022;
+  --warning-500: #f79009;
+  --warning-600: #dc6803;
+  --warning-700: #b54708;
+  --warning-800: #93370d;
+  --warning-900: #7a2e0e;
+  --warning-950: #4e1d09;
+
+  /* success
+     Corrected 2026-09-11 — success-600 re-synced against Figma's "Success
+     Palette" frame (Foundations / Colors, node 6428:27293); the other 10
+     steps already matched exactly. */
+  --success-50: #ecfdf3;
+  --success-100: #d1fadf;
+  --success-200: #a6f4c5;
+  --success-300: #6ce9a6;
+  --success-400: #32d583;
+  --success-500: #12b76a;
+  --success-600: #058550;
+  --success-700: #067647;
+  --success-800: #085d3a;
+  --success-900: #074d31;
+  --success-950: #053321;
+
+  /* spacing — Figma Spacing page (4px base + micro tiers) */
+  --space-0: 0px;
+  --space-px: 1px;
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-sm: 6px;
+  --space-md: 8px;
+  --space-lg: 12px;
+  --space-xl: 16px;
+  --space-2xl: 20px;
+  --space-3xl: 24px;
+  --space-4xl: 32px;
+  --space-5xl: 40px;
+  --space-6xl: 48px;
+  --space-7xl: 64px;
+  --space-8xl: 80px;
+  --space-9xl: 96px;
+  --space-10xl: 128px;
+
+  /* radius — squircle-leaning. Re-synced 2026-09-11 against Figma's real bound
+     Radius variable collection (VariableCollectionId:2034:47), after a
+     duplicate "Radius" collection was consolidated in Figma. */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* grid — Figma "Foundations / Grid Layouts" (2066:16952). Layout-level
+     values (column count, margin), not colors/spacing reused broadly —
+     documented here for consistency with the rest of the token system.
+     No current consumer: no grid-layout component/pattern exists yet in
+     this codebase (confirmed by an earlier phase of this sync run — zero
+     application patterns are built). Desktop's own margin (32px) and all
+     3 breakpoints' gutters (24/16/12px) are also visible in the same
+     Figma frame but weren't requested by this unit's scope (only
+     mobile/tablet margins) — left out here, not fabricated as "missing."
+     See SYNC_LOG.md. */
+  --grid-columns-mobile: 4;
+  --grid-columns-tablet: 8;
+  --grid-columns-desktop: 12;
+  --grid-margin-mobile: 16px;
+  --grid-margin-tablet: 24px;
+
+  /* ============================================================
+     SEMANTIC — LIGHT
+     ============================================================ */
+
+  --bg-primary: var(--base-white);
+  --bg-secondary: var(--gray-50);
+  --bg-tertiary: var(--gray-100);
+  --bg-elevated: var(--base-white);
+  --bg-preview: #f8f9fb;
+  --bg-disabled: var(--gray-100);
+  --bg-secondary-hover: var(--gray-100);
+  --bg-tertiary-hover: var(--gray-200);
+  --bg-switch-off: var(--gray-300);
+
+  /* overlay: gray/900 @ 60% opacity — Figma "Semantic Tokens — Background"
+     (bg/overlay, node 6180:9644) states "modal backgrounds at 60% opacity";
+     its swatch fill is #101828, which is exactly --gray-900. Figma shows no
+     separate dark-mode value for this token, so it's intentionally
+     mode-invariant (same rgb() in both the light and dark blocks below). */
+  --bg-overlay: rgb(16 24 40 / 0.6);
+
+  --bg-brand-solid: var(--brand-600);
+  --bg-brand-solid-hover: var(--brand-700);
+  --bg-brand-solid-active: var(--brand-800);
+  --bg-brand-subtle: var(--brand-50);
+
+  --bg-error-solid: var(--error-600);
+  --bg-error-solid-hover: var(--error-700);
+  --bg-error-subtle: var(--error-50);
+  --bg-warning-solid: var(--warning-600);
+  --bg-warning-subtle: var(--warning-50);
+  --bg-success-solid: var(--success-600);
+  --bg-success-subtle: var(--success-50);
+  /* info has no dedicated primitive ramp in Figma — its Status Colors swatches
+     (fg/info, bg/info, border/info) resolve to the exact same hex values as
+     brand/500 and brand/50, so info intentionally aliases the brand ramp
+     rather than getting its own. Repointed 2026-09-11 from brand-600 to
+     brand-500 to match the confirmed swatch exactly. */
+  --bg-info-solid: var(--brand-500);
+  --bg-info-subtle: var(--brand-50);
+
+  /* short aliases (landing / legacy utilities) */
+  --bg-brand: var(--bg-brand-solid);
+  --bg-brand-hover: var(--bg-brand-solid-hover);
+
+  --fg-primary: var(--gray-900);
+  --fg-secondary: var(--gray-600);
+  --fg-tertiary: var(--gray-500);
+  --fg-disabled: var(--gray-400);
+  --fg-brand: var(--brand-600);
+  --fg-on-brand: var(--base-white);
+  --fg-on-error: var(--base-white);
+  --fg-on-warning: var(--base-white);
+  --fg-on-success: var(--base-white);
+  --fg-error: var(--error-600);
+  --fg-warning: var(--warning-600);
+  --fg-success: var(--success-600);
+  --fg-info: var(--brand-500);
+  --fg-on-info: var(--base-white);
+
+  --border-default: var(--gray-200);
+  --border-strong: var(--gray-300);
+  --border-brand: var(--brand-600);
+  --border-error: var(--error-600);
+  --border-warning: var(--warning-600);
+  --border-success: var(--success-600);
+  --border-info: var(--brand-500);
+
+  --focus-ring: var(--brand-500);
+
+  /* ============================================================
+     EFFECTS — brand-tinted shadows (never flat black)
+     ============================================================ */
+
+  /* rgb(36 51 128 / ...) = brand-900 (#243380), decomposed since plain CSS
+     can't derive rgb components from a hex custom property. Recomputed
+     2026-09-11 alongside the brand ramp correction above. */
+  --shadow-xs: 0 1px 2px rgb(36 51 128 / 0.06);
+  --shadow-sm: 0 1px 3px rgb(36 51 128 / 0.1), 0 1px 2px rgb(36 51 128 / 0.06);
+  /* shadow-md corrected 2026-09-11 to Figma's real tooltip-body effect
+     (DROP_SHADOW #1E348514 offset(0,4) radius8 spread-2 + DROP_SHADOW
+     #1E34850F offset(0,2) radius4 spread-2) — was a Tailwind-derived
+     approximation, off by a few px/alpha on the first layer. */
+  --shadow-md: 0 4px 8px -2px rgb(36 51 128 / 0.08), 0 2px 4px -2px
+    rgb(36 51 128 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(36 51 128 / 0.1), 0 4px 6px -4px
+    rgb(36 51 128 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(36 51 128 / 0.1), 0 8px 10px -6px
+    rgb(36 51 128 / 0.05);
+  --shadow-2xl: 0 25px 50px -12px rgb(36 51 128 / 0.22);
+
+  /* glow-focus: brand/500 @ 24%, 4px spread, zero blur/offset.
+     rgb(68 105 229 / ...) = brand-500 (#4469e5), recomputed 2026-09-11. */
+  --shadow-glow-focus: 0 0 0 4px rgb(68 105 229 / 0.24);
+  /* glow-focus-error: same shape as --shadow-glow-focus (4px spread, 24%
+     opacity, zero blur/offset), swapped to error/500 (#f04438 = rgb(240 68
+     56)) instead of brand/500. Figma's file has no dedicated error-tinted
+     focus-ring effect style to read directly (confirmed absent via
+     search_design_system on this file) — this value is derived by applying
+     the exact structural formula CLAUDE.md already documents for the brand
+     glow, to the already-locked --error-500 primitive. For error-state
+     interactive components in Phase 2. */
+  --shadow-glow-focus-error: 0 0 0 4px rgb(240 68 56 / 0.24);
+
+  --blur-sm: 8px;
+  --blur-md: 16px;
+  --blur-lg: 24px;
+}
+
+/* ============================================================
+   SEMANTIC — DARK
+   ============================================================ */
+
+/* Follows the OS setting when no theme class is set, so dark mode works out of
+   the box. An explicit `.light`/`.dark` class (or next-themes) still wins, and a
+   `[data-preview-theme]` pane is unaffected — this rule only matches :root.
+   GENERATED from the .dark block below by `pnpm sync:tokens`; do not edit. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-preview-theme="light"]) {
+    color-scheme: dark;
+
+    --bg-primary: #0a0a0b;
+    --bg-secondary: #111113;
+    --bg-tertiary: #18181b;
+    --bg-elevated: #1c1c1f;
+    --bg-preview: #16161a;
+    --bg-disabled: var(--gray-800);
+    --bg-secondary-hover: var(--gray-800);
+    --bg-tertiary-hover: var(--gray-700);
+    --bg-switch-off: var(--gray-600);
+
+    /* overlay: no dark-mode override in Figma — same rgb() as light, see light
+       block comment. */
+    --bg-overlay: rgb(16 24 40 / 0.6);
+
+    --bg-brand-solid: var(--brand-600);
+    --bg-brand-solid-hover: var(--brand-500);
+    --bg-brand-solid-active: var(--brand-700);
+    --bg-brand-subtle: var(--brand-950);
+
+    --bg-error-solid: var(--error-600);
+    --bg-error-solid-hover: var(--error-500);
+    --bg-error-subtle: var(--error-950);
+    --bg-warning-solid: var(--warning-600);
+    --bg-warning-subtle: var(--warning-950);
+    --bg-success-solid: var(--success-600);
+    --bg-success-subtle: var(--success-950);
+    --bg-info-solid: var(--brand-500);
+    --bg-info-subtle: var(--brand-950);
+
+    --bg-brand: var(--bg-brand-solid);
+    --bg-brand-hover: var(--bg-brand-solid-hover);
+
+    --fg-primary: var(--gray-50);
+    --fg-secondary: var(--gray-400);
+    --fg-tertiary: var(--gray-500);
+    --fg-disabled: var(--gray-600);
+    --fg-brand: var(--brand-400);
+    --fg-on-brand: var(--base-white);
+    --fg-on-error: var(--base-white);
+    --fg-on-warning: var(--base-white);
+    --fg-on-success: var(--base-white);
+    --fg-error: var(--error-400);
+    --fg-warning: var(--warning-400);
+    --fg-success: var(--success-400);
+    --fg-info: var(--brand-400);
+    --fg-on-info: var(--base-white);
+
+    --border-default: var(--gray-800);
+    --border-strong: var(--gray-700);
+    --border-brand: var(--brand-400);
+    --border-error: var(--error-400);
+    --border-warning: var(--warning-400);
+    --border-success: var(--success-400);
+    --border-info: var(--brand-400);
+
+    --focus-ring: var(--brand-400);
+  }
+}
+
+.dark,
+[data-preview-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #111113;
+  --bg-tertiary: #18181b;
+  --bg-elevated: #1c1c1f;
+  --bg-preview: #16161a;
+  --bg-disabled: var(--gray-800);
+  --bg-secondary-hover: var(--gray-800);
+  --bg-tertiary-hover: var(--gray-700);
+  --bg-switch-off: var(--gray-600);
+
+  /* overlay: no dark-mode override in Figma — same rgb() as light, see light
+     block comment. */
+  --bg-overlay: rgb(16 24 40 / 0.6);
+
+  --bg-brand-solid: var(--brand-600);
+  --bg-brand-solid-hover: var(--brand-500);
+  --bg-brand-solid-active: var(--brand-700);
+  --bg-brand-subtle: var(--brand-950);
+
+  --bg-error-solid: var(--error-600);
+  --bg-error-solid-hover: var(--error-500);
+  --bg-error-subtle: var(--error-950);
+  --bg-warning-solid: var(--warning-600);
+  --bg-warning-subtle: var(--warning-950);
+  --bg-success-solid: var(--success-600);
+  --bg-success-subtle: var(--success-950);
+  --bg-info-solid: var(--brand-500);
+  --bg-info-subtle: var(--brand-950);
+
+  --bg-brand: var(--bg-brand-solid);
+  --bg-brand-hover: var(--bg-brand-solid-hover);
+
+  --fg-primary: var(--gray-50);
+  --fg-secondary: var(--gray-400);
+  --fg-tertiary: var(--gray-500);
+  --fg-disabled: var(--gray-600);
+  --fg-brand: var(--brand-400);
+  --fg-on-brand: var(--base-white);
+  --fg-on-error: var(--base-white);
+  --fg-on-warning: var(--base-white);
+  --fg-on-success: var(--base-white);
+  --fg-error: var(--error-400);
+  --fg-warning: var(--warning-400);
+  --fg-success: var(--success-400);
+  --fg-info: var(--brand-400);
+  --fg-on-info: var(--base-white);
+
+  --border-default: var(--gray-800);
+  --border-strong: var(--gray-700);
+  --border-brand: var(--brand-400);
+  --border-error: var(--error-400);
+  --border-warning: var(--warning-400);
+  --border-success: var(--success-400);
+  --border-info: var(--brand-400);
+
+  --focus-ring: var(--brand-400);
+}

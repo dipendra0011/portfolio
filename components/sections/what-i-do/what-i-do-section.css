@@ -1,0 +1,246 @@
+/* ------------------------------------------------------------------
+   Section tokens — scoped to .what-i-do so nothing global changes.
+   The intro's marker stroke and the disciplines panel share --what-i-do-bg,
+   which is what makes the wipe hand off without a seam.
+   ------------------------------------------------------------------ */
+.what-i-do {
+  --what-i-do-bg: var(--blue);
+  --what-i-do-fg: var(--brand-50);
+  --what-i-do-line: color-mix(in srgb, var(--what-i-do-fg) 35%, transparent);
+  --what-i-do-gutter: 20px;
+}
+
+@media (min-width: 768px) {
+  .what-i-do {
+    --what-i-do-gutter: 36px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Intro + marker wipe
+   ------------------------------------------------------------------ */
+.what-i-do-intro {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--bg);
+}
+
+.what-i-do-intro__content {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 3vw, 48px);
+  height: 100%;
+  padding: var(--what-i-do-gutter);
+  text-align: center;
+}
+
+.what-i-do-intro__statement {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(22px, 3.6vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.what-i-do-intro__statement-lead {
+  display: block;
+  font-size: 2em;
+}
+
+.what-i-do-intro__heading {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(24px, 2.4vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--what-i-do-bg);
+}
+
+.what-i-do-intro__bracket {
+  display: inline-block;
+}
+
+.what-i-do-intro__bracket--left {
+  margin-right: 0.25em;
+}
+
+.what-i-do-intro__bracket--right {
+  margin-left: 0.25em;
+}
+
+.what-i-do-intro__stroke {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: clip;
+  pointer-events: none;
+  color: var(--what-i-do-bg);
+}
+
+/* Oversized so the round caps and the fattened stroke never leave a gap at
+   the viewport edges. */
+.what-i-do-intro__stroke svg {
+  position: absolute;
+  top: -15%;
+  left: -15%;
+  width: 130%;
+  height: 130%;
+}
+
+/* ------------------------------------------------------------------
+   Disciplines list. The base styles are the static, stacked layout (mobile and
+   reduced motion). The desktop pin adds .what-i-do-panel--pinned from JS.
+   ------------------------------------------------------------------ */
+.what-i-do-panel {
+  position: relative;
+  /* Overlaps the intro by a pixel so sub-pixel rounding can't open a
+     hairline at the seam. */
+  margin-top: -1px;
+  background: var(--what-i-do-bg);
+  color: var(--what-i-do-fg);
+}
+
+.what-i-do-panel--pinned {
+  height: 100vh;
+}
+
+/* Header stays tucked while the panel is pinned (flag set from
+   what-i-do-section.tsx). Out-specifies the header's translate utility;
+   keyboard focus inside keeps it reachable. */
+html[data-header-tucked] header:not(:has(:focus-visible)) {
+  translate: 0 calc(-100% - 8px);
+}
+
+/* Fills the whole screen while pinned — the header hides on scroll down, so
+   there's nothing to clear. The list slides up inside it, taking its own top
+   rule with it, so the viewport carries that rule instead. */
+.what-i-do-panel--pinned .what-i-do-panel__viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-top: 1.5px solid var(--what-i-do-line);
+}
+
+.what-i-do-panel__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1.5px solid var(--what-i-do-line);
+}
+
+.what-i-do-panel--pinned .what-i-do-panel__list {
+  border-top: 0;
+}
+
+.discipline__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px var(--what-i-do-gutter);
+  /* Bottom rule only: it divides a row from its open panel, or from the
+     next row when the panel is closed — one line per break, never two. */
+  border-bottom: 1.5px solid var(--what-i-do-line);
+}
+
+/* Big and light against the heavier title, like the reference — the
+   contrast in weight is what makes the row read. */
+.discipline__index {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: clamp(32px, 4.4vw, 76px);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.discipline__title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(20px, 3vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.discipline__body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  /* The tablet accordion animates height; content must clip, not spill. */
+  overflow: hidden;
+}
+
+.discipline__description {
+  margin: 0;
+  max-width: 44ch;
+  padding: 24px var(--what-i-do-gutter) 40px;
+  font-family: var(--sans);
+  font-size: clamp(17px, 1.45vw, 25px);
+  line-height: 1.35;
+}
+
+.discipline__media {
+  order: -1;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.discipline__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+@media (min-width: 992px) {
+  .discipline__row {
+    padding-block: 16px;
+  }
+
+  /* Static desktop panel (reduced motion). When pinned, JS sizes it to fill
+     the viewport instead. */
+  .discipline__body {
+    display: block;
+    height: 70vh;
+  }
+
+  /* Vertically centred, left-aligned in the column left of the image.
+     `translate`, not `transform`, so it can't collide with anything GSAP
+     writes. */
+  .discipline__description {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 1;
+    width: 29%;
+    max-width: none;
+    padding: 0 var(--what-i-do-gutter);
+    translate: 0 -50%;
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  /* left/width must match MEDIA_LEFT / MEDIA_WIDTH in what-i-do-section.tsx. */
+  .discipline__media {
+    position: absolute;
+    top: 0;
+    left: 29%;
+    z-index: 2;
+    width: 71%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}

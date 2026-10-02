@@ -1,0 +1,13 @@
+{
+  "$schema": "https://paubha.tech/schema.json",
+  "registry": "https://paubha.tech/r",
+  "aliases": {
+    "components": "components/ui",
+    "lib": "lib"
+  },
+  "tailwind": {
+    "tokens": "styles/tokens.css",
+    "theme": "styles/theme.css",
+    "css": "app/globals.css"
+  }
+}

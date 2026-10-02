@@ -1,0 +1,498 @@
+/* ------------------------------------------------------------------
+   Section tokens — scoped to .projects so nothing global changes.
+   Mapped onto the site's light theme (styles/site-tokens.css). --sans and
+   --label are inherited as-is (redeclaring them here would be a
+   self-reference). --radius-lg is overridden inside the section only, to
+   match CORNER_RADIUS in projects-canvas.tsx.
+   ------------------------------------------------------------------ */
+.projects {
+  --white-dim: var(--fg);
+  --text-muted: var(--fg-dim);
+  --text-ghost: color-mix(in srgb, var(--fg) 40%, transparent);
+  --radius-lg: 4px;
+  /* The canvas bleeds 120px past the grid (see .projects__canvas). With
+     near-edge gutters that bleed runs past the viewport; clip it here so it
+     can never cause horizontal scroll. `clip`, not `hidden` — it doesn't
+     create a scroll container, so vertical bleed and ScrollTrigger are
+     unaffected. */
+  overflow-x: clip;
+}
+
+/* Shared section classes */
+.section-shell {
+  max-width: 1920px;
+  margin-inline: auto;
+  padding: clamp(64px, 8vw, 120px) 20px clamp(96px, 12vw, 160px);
+}
+
+@media (min-width: 768px) {
+  .section-shell {
+    padding-inline: 36px;
+  }
+}
+
+.display-statement {
+  font-family: var(--sans);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--text-ghost);
+}
+
+/* ------------------------------------------------------------------
+   Projects section
+   ------------------------------------------------------------------ */
+.projects__intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+.projects__headline {
+  font-size: clamp(40px, 4.4vw, 72px);
+  line-height: 1;
+  /* Overrides the translucent --text-ghost inherited from .display-statement:
+     a translucent base color means the text still looks washed out even
+     once the scroll-scrub's opacity reaches 1. */
+  color: var(--white-dim);
+}
+
+.projects__word {
+  display: inline-block;
+}
+
+.projects__see-all {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--white-dim);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* Text turns blue via the letter roll (RollText); the arrow follows. */
+.projects__see-all:hover .projects__see-all-icon {
+  color: var(--blue);
+}
+
+.projects__see-all-icon {
+  width: 16px;
+  height: 16px;
+  transition: color 0.2s ease;
+}
+
+/* Project grid — 2x2 card layout. The card images are rendered as
+   shader-displaced WebGL planes (projects-canvas.tsx) that track these boxes,
+   so anything that changes a card's size or position here has to stay
+   observable by that component's ResizeObserver. */
+.projects__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(48px, 5vw, 80px) 16px;
+}
+
+/* Shared WebGL surface for every card image (projects-canvas.tsx). It sits
+   above the grid's own background but below the cards, and never takes
+   pointer events — hover is tracked on the DOM media boxes underneath, and
+   card text must stay selectable. */
+.projects__canvas {
+  position: absolute;
+  /* Bled 120px past the grid on every side (BLEED in projects-canvas.tsx —
+     keep the two in sync). Grid columns run edge to edge, so a card bending
+     toward the viewer at a grid edge would otherwise be sliced off by the
+     canvas boundary. */
+  inset: -120px;
+  /* Explicit sizes, not just the insets. A <canvas> is a replaced element, so
+     width:auto resolves to its *intrinsic* size (the width/height attributes,
+     which three sets to CSS size x devicePixelRatio) and the insets get
+     ignored — on a 2x display that laid the canvas out at double size and
+     scaled every card image up to match. */
+  width: calc(100% + 240px);
+  height: calc(100% + 240px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Added only once the texture has decoded, so the real <img> stays visible
+   until there's something to replace it with. Without WebGL (reduced motion,
+   touch, small viewport, no context) this class never lands and the plain
+   images are simply what you see. */
+.projects__grid--gl .project-card__media > img {
+  opacity: 0;
+}
+
+.project-card {
+  display: block;
+  /* z-index only applies to positioned elements — without this the card's
+     stacking against the canvas would be accidental DOM order. */
+  position: relative;
+  z-index: 2;
+  min-width: 0; /* grid items default to min-content; without this a long
+                   unbreakable title would widen the column */
+  /* lusion.co's house curve (also registered as the "lusion" GSAP ease in
+     lib/gsap.ts) — shared by every hover transition on the card. */
+  --ease-lusion: cubic-bezier(0.35, 0, 0, 1);
+}
+
+.project-card__media {
+  position: relative;
+  aspect-ratio: 10 / 7;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.project-card__media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-card__title-row {
+  --title-size: clamp(22px, 2vw, 30px);
+  --row-gap: 10px;
+  /* Arrow width (1 title-em) + gap. */
+  --hover-shift: calc(var(--title-size) + var(--row-gap));
+  position: relative;
+  margin-top: 14px;
+  overflow: hidden; /* clips the parked arrow + the shifted label */
+}
+
+.project-card__arrow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  font-size: var(--title-size);
+  line-height: 1;
+  height: 1.15em;
+  transform: translateX(-110%);
+  transition: transform 0.4s var(--ease-lusion);
+}
+
+.project-card__arrow svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+/* Index + title travel together — one transform, no overlap possible. */
+.project-card__label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--row-gap);
+  max-width: calc(100% - var(--hover-shift));
+  transition: transform 0.4s var(--ease-lusion);
+}
+
+.project-card__index {
+  flex-shrink: 0;
+  width: 16px;
+  font-family: var(--label);
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--white-dim);
+}
+
+.project-card__title {
+  min-width: 0;
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: var(--title-size);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--white-dim);
+}
+
+.project-card__char {
+  display: inline-block;
+  height: 1.15em;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.project-card__roll {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card__roll > span {
+  display: block;
+  height: 1.15em;
+  white-space: pre;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover .project-card__label {
+    transform: translateX(var(--hover-shift));
+  }
+
+  .project-card:hover .project-card__arrow {
+    transform: translateX(0);
+    transition-delay: 0.08s; /* follows the label, doesn't lead */
+  }
+}
+
+@media (max-width: 768px) {
+  /* No hover on touch, so the arrow never appears — it already sits clipped
+     at rest, this just skips rendering it at all. */
+  .project-card__arrow {
+    display: none;
+  }
+
+  .projects__intro {
+    margin-bottom: 40px;
+  }
+
+  .projects__see-all {
+    font-size: 16px;
+  }
+
+  .projects__grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+/* Cards with a case study are wrapped in a link (CardLink in
+   projects-section.tsx). It must not restyle the card's text. */
+.project-card__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Work-in-progress hover (WipOverlay in projects-section.tsx) ──────────
+   Hazard tape slides up from the bottom edge, a builder pops out behind it
+   and jackhammers, kicking up dust. Hidden at rest; hover-capable devices
+   only, since touch has no hover to reveal it. */
+.project-wip {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.project-wip__tape {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: 9%;
+  padding: 7px 0;
+  overflow: hidden;
+  transform: translateY(160%) rotate(-3deg);
+  background: repeating-linear-gradient(
+    -45deg,
+    #f5c518 0 14px,
+    #111 14px 28px
+  );
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+  transition: transform 0.55s var(--ease-lusion);
+}
+
+.project-wip__track {
+  display: flex;
+  width: max-content;
+  animation: project-wip-marquee 14s linear infinite;
+  animation-play-state: paused;
+}
+
+.project-wip__track span {
+  padding: 3px 0;
+  background: #f5c518;
+  color: #111;
+  font-family: var(--label);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: pre;
+}
+
+.project-wip__builder {
+  position: absolute;
+  right: 10%;
+  bottom: 14%;
+  /* Dust offsets are in em, so this sets their scale. */
+  font-size: clamp(56px, 7vw, 96px);
+  line-height: 0;
+  transform: translateY(140%);
+  transition: transform 0.6s var(--ease-lusion);
+}
+
+/* Source art is only 107x190, so cap the height to keep it from going
+   mushy. Background was cut out to transparent in the PNG. */
+.project-wip__figure {
+  display: block;
+  height: clamp(96px, 11vw, 150px);
+  width: auto;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.4));
+}
+
+.project-wip__dust {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  width: 0.09em;
+  height: 0.09em;
+  border-radius: 50%;
+  background: #d9c9a3;
+  opacity: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Fully hidden at rest — the tape is tilted, so on wide cards its raised
+     end would otherwise peek over the bottom edge. Visibility flips off only
+     after the slide-out finishes. */
+  .project-wip {
+    display: block;
+    visibility: hidden;
+    transition: visibility 0s 0.6s;
+  }
+
+  .project-card--wip:hover .project-wip {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .project-card--wip:hover .project-wip__tape {
+    transform: translateY(0) rotate(-3deg);
+  }
+
+  .project-card--wip:hover .project-wip__track {
+    animation-play-state: running;
+  }
+
+  /* Builder follows the tape, so it reads as climbing out from behind it. */
+  .project-card--wip:hover .project-wip__builder {
+    transform: translateY(0);
+    transition-delay: 0.12s;
+  }
+
+  .project-card--wip:hover .project-wip__figure {
+    animation: project-wip-jackhammer 0.11s linear infinite;
+  }
+
+  .project-card--wip:hover .project-wip__dust {
+    animation: project-wip-dust 0.7s ease-out infinite;
+  }
+  .project-card--wip:hover .project-wip__dust--b {
+    --dx: -1;
+    animation-delay: 0.23s;
+  }
+  .project-card--wip:hover .project-wip__dust--c {
+    --dx: 0.4;
+    animation-delay: 0.46s;
+  }
+}
+
+@keyframes project-wip-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes project-wip-jackhammer {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-0.75px, 1px) rotate(-0.75deg);
+  }
+  50% {
+    transform: translate(0.5px, -0.5px) rotate(0.5deg);
+  }
+  75% {
+    transform: translate(0.75px, 1px) rotate(-0.25deg);
+  }
+}
+
+@keyframes project-wip-dust {
+  0% {
+    opacity: 0.9;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx, 1) * 0.5em), -0.35em) scale(0.3);
+  }
+}
+
+/* Reduced motion: the tape and builder still appear (it's information, not
+   just flourish), but nothing shakes, scrolls or sputters. */
+@media (prefers-reduced-motion: reduce) {
+  .project-wip__tape,
+  .project-wip__builder {
+    transition-duration: 0.01s;
+  }
+
+  .project-card--wip:hover .project-wip__track,
+  .project-card--wip:hover .project-wip__figure,
+  .project-card--wip:hover .project-wip__dust {
+    animation: none;
+  }
+}
+
+/* ── "View more" cursor circle (ViewMoreCursor, linked cards only) ─────── */
+.project-view {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-card__link .project-card__media {
+    cursor: none;
+  }
+
+  /* Outer box is positioned by GSAP (x/y at the cursor); the inner circle
+     owns the open/close scale so the two transforms never fight. */
+  .project-view {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .project-view__circle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    margin: -56px 0 0 -56px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: var(--bg);
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transform: scale(0);
+    transition: transform 0.5s var(--ease-lusion);
+  }
+
+  .project-card__media:hover .project-view__circle {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-view__circle {
+    transition-duration: 0.01s;
+  }
+}

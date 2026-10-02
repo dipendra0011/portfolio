@@ -1,0 +1,224 @@
+/* ------------------------------------------------------------------
+   About page. Layout is Tailwind; this file holds what utilities can't
+   express cleanly — the load-in guard, split-word fixes, the chapter
+   numerals and pinned accordion, and the header tuck while it's pinned.
+   ------------------------------------------------------------------ */
+
+/* Intro starts hidden so the server-rendered text doesn't flash before
+   about-motion.tsx's load tweens take over (same guard as the case study). */
+@media (prefers-reduced-motion: no-preference) {
+  .about-load {
+    visibility: hidden;
+  }
+}
+
+/* SplitText words are inline-blocks; they'd each inherit the manifesto's
+   first-line indent and push the line apart. */
+.about-manifesto__word {
+  text-indent: 0;
+}
+
+/* ------------------------------------------------------------------
+   Chapters. Base styles are the static, stacked list (mobile and reduced
+   motion). The desktop pin adds .about-chapters--pinned from JS.
+   ------------------------------------------------------------------ */
+
+/* Blue numeral with a hairline copy knocked off its corner, like a misprint. */
+.about-chapter__numeral {
+  position: relative;
+  display: inline-block;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(7rem, 17vw, 16rem);
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  color: var(--blue);
+}
+
+.about-chapter__numeral-ghost {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--blue);
+  translate: 0.09em -0.06em;
+}
+
+/* Pinned: fills the screen. Every row stays put; the open chapter's body
+   takes the --about-open height left between them (measured in
+   about-chapters.tsx). Bodies start closed except the first; the timeline
+   takes over from there. */
+.about-chapters--pinned {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.about-chapters--pinned .about-chapter__body {
+  position: relative;
+  height: 0;
+  overflow: clip;
+}
+
+.about-chapters--pinned .about-chapter:first-child .about-chapter__body {
+  height: var(--about-open);
+}
+
+.about-chapters--pinned .about-chapter:not(:first-child) .about-chapter__content {
+  opacity: 0;
+}
+
+/* Contents are laid out at the full open height, so a closing body clips
+   them instead of squashing them. */
+.about-chapters--pinned .about-chapter__inner {
+  height: var(--about-open);
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+/* The numeral fills the open height and runs off the left edge, standing on
+   the next row. */
+.about-chapters--pinned .about-chapter__numeral {
+  position: absolute;
+  left: -0.07em;
+  bottom: -0.035em;
+  font-size: calc(var(--about-open) * 1.12);
+}
+
+/* ------------------------------------------------------------------
+   Experience — the page's one colour band. It starts on the site blue and
+   the desktop pin deepens it role by role (about-experience.tsx). Open and
+   hovered titles, and link rolls, use a light lift mixed from the blue so
+   they read against every step of the band.
+   ------------------------------------------------------------------ */
+.about-experience {
+  --about-accent: color-mix(in srgb, var(--blue) 22%, var(--bg));
+  background-color: var(--blue);
+}
+
+.about-experience .roll-text {
+  --roll-color: var(--about-accent);
+}
+
+/* Accordion (mobile and reduced motion): rows open with a 0fr → 1fr grid
+   track, so the body glides to its own height. */
+.about-exp__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 600ms var(--ease-out-expo);
+}
+
+.about-exp__body[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.about-exp__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-exp__body {
+    transition: none;
+  }
+}
+
+/* Odometer: every year layer shares one grid cell, and the cell clips, so
+   digits roll in and out of view. Sized in em off the display face. */
+.about-exp__years {
+  display: grid;
+  overflow: clip;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(6.5rem, 12.5vw, 13rem);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  /* Room for the digits' overshoot inside the clip. */
+  padding-block: 0.04em;
+}
+
+.about-exp__year {
+  grid-area: 1 / 1;
+  display: flex;
+}
+
+.about-exp__digit {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Track: a hairline axis from the first start year to now, the active
+   role's span drawn over it and a dot on its start. Positions come from
+   about-experience.tsx as percentages. */
+.about-exp__track {
+  position: relative;
+  height: 1px;
+  background: color-mix(in srgb, var(--bg) 30%, transparent);
+}
+
+.about-exp__span {
+  position: absolute;
+  top: -1px;
+  height: 3px;
+  background: var(--about-accent);
+}
+
+.about-exp__dot {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  background: var(--bg);
+  translate: -50% -50%;
+}
+
+/* Pinned stage: fills the screen, dial on the left, rows on the right. The
+   rows stack from the top; only the active body has height (set from JS). */
+.about-exp--pinned {
+  height: 100vh;
+  align-content: center;
+  padding-block: 32px;
+}
+
+.about-exp--pinned .about-exp__dial {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-self: center;
+}
+
+.about-exp--pinned .about-exp__list {
+  grid-column: 6 / -1;
+  align-self: center;
+}
+
+.about-exp--pinned .about-exp__body {
+  display: block;
+  overflow: clip;
+  transition: none;
+}
+
+/* Tighter rows while pinned, so every row plus the open one fits a short
+   laptop screen (~780px). */
+.about-exp--pinned .about-exp__row {
+  padding-block: 14px;
+}
+
+.about-exp--pinned .about-exp__title {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+}
+
+.about-exp--pinned .about-exp__panel {
+  padding-bottom: 24px;
+}
+
+.about-exp--pinned .about-exp__inner {
+  overflow: visible;
+}
+
+/* Header stays tucked while the chapters are pinned (flag set from
+   about-chapters.tsx). Same rule as the home page's pinned panel; repeated
+   here because that stylesheet only loads there. Keyboard focus inside
+   keeps it reachable. */
+html[data-header-tucked] header:not(:has(:focus-visible)) {
+  translate: 0 calc(-100% - 8px);
+}

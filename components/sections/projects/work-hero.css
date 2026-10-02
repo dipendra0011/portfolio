@@ -1,0 +1,43 @@
+/* Starts hidden so the server-rendered word doesn't flash before the load
+   tweens in work-hero.tsx take over. Reduced motion never hides it. */
+@media (prefers-reduced-motion: no-preference) {
+  .work-hero {
+    visibility: hidden;
+  }
+}
+
+/* Font size is fitted in work-hero.tsx so the word spans the space left of
+   the count column; this is just the first-paint guess. inline-block and
+   nowrap so its measured width is the word's, not the box's. */
+.work-hero__title {
+  display: inline-block;
+  margin: 0;
+  white-space: nowrap;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(5.5rem, 21vw, 30rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+/* SplitText masks: room for the glyphs' overshoot inside the clip. */
+.work-hero__title > div {
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.work-hero__count {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2rem, 5.2vw, 6rem);
+  line-height: 0.8;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.work-hero__arrow {
+  width: clamp(2.5rem, 5vw, 5.5rem);
+  height: auto;
+}

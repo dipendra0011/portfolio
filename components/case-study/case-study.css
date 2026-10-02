@@ -1,0 +1,638 @@
+/* ------------------------------------------------------------------
+   Case study page. Uses the portfolio's site tokens only
+   (styles/site-tokens.css) so it reads as the same site as home: white
+   ground, --fg ink, the single --blue accent, GT Standard with tight
+   tracking, mono labels, full-bleed rules and 4px corners. The Paubha
+   primitives (--brand-*, --gray-*) appear only inside the token plates,
+   where they are the subject matter.
+   ------------------------------------------------------------------ */
+.cs {
+  --cs-gutter: 20px;
+  --cs-radius: 4px;
+  max-width: 1920px;
+  margin-inline: auto;
+  padding-inline: var(--cs-gutter);
+  color: var(--fg);
+  font-family: var(--sans);
+  overflow-x: clip;
+}
+
+@media (min-width: 768px) {
+  .cs {
+    --cs-gutter: 36px;
+  }
+}
+
+.cs-label {
+  font-family: var(--label);
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* Anchor jumps and keyboard focus without ScrollSmoother (reduced motion)
+   land below the fixed site header instead of under it. */
+html:has(.cs) {
+  scroll-padding-top: 110px;
+}
+
+/* Intro starts hidden only where it will animate in; GSAP un-hides it once
+   its from-states are set (case-study-reveal.tsx). The failsafe animation
+   un-hides it anyway if the script never runs. */
+@media (prefers-reduced-motion: no-preference) {
+  .cs-title,
+  .cs-intro--eyebrow,
+  .cs-intro--rest {
+    visibility: hidden;
+    animation: cs-failsafe 0s 3s forwards;
+  }
+}
+
+@keyframes cs-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
+/* Header ------------------------------------------------------------ */
+.cs-header {
+  padding-top: clamp(140px, 16vw, 220px);
+  padding-bottom: clamp(48px, 6vw, 88px);
+}
+
+.cs-title {
+  margin-top: 20px;
+  max-width: 16ch;
+  font-size: clamp(3rem, 7vw, 6.25rem);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  color: var(--blue);
+}
+
+.cs-title__dim {
+  color: var(--fg);
+}
+
+.cs-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px 16px;
+  margin-top: clamp(56px, 6vw, 96px);
+  padding-top: 20px;
+  /* Full-bleed rule, same as the hero's separator. */
+  border-top: 1px solid var(--fg);
+  margin-inline: calc(var(--cs-gutter) * -1);
+  padding-inline: var(--cs-gutter);
+}
+
+@media (min-width: 768px) {
+  .cs-meta {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cs-meta__item dd {
+  margin-top: 8px;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+/* Hero image -------------------------------------------------------- */
+.cs-hero {
+  aspect-ratio: 16 / 9;
+  margin-top: clamp(32px, 4vw, 56px);
+  border-radius: var(--cs-radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.cs-hero img,
+.cs-figure__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Text sections: label + title left, body right --------------------- */
+.cs-section {
+  display: grid;
+  gap: 24px;
+  padding-block: clamp(64px, 8vw, 120px);
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 992px) {
+  .cs-section {
+    grid-template-columns: 5fr 7fr;
+    gap: 16px;
+  }
+}
+
+.cs-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Title and paragraph share one starting line on desktop:
+   - the index label hangs above the title instead of pushing it down;
+   - text-box trims the half-leading above each, so the tops of their
+     capitals meet the same line (title is 56px at line-height 1, body 20px
+     at 1.4 — untrimmed, their glyphs start at different heights).
+   Browsers without text-box fall back to a few px of drift. */
+@media (min-width: 992px) {
+  .cs-section__head {
+    position: relative;
+    align-self: start;
+  }
+
+  .cs-section__head > .cs-label {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 14px;
+  }
+
+  .cs-section__title,
+  .cs-section__body > p:first-child,
+  .cs-outcomes__col:first-child > h3 {
+    text-box: trim-start cap alphabetic;
+  }
+}
+
+.cs-section__title {
+  font-size: clamp(32px, 3.4vw, 56px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.cs-section__body {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: clamp(17px, 1.3vw, 20px);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.cs-section__body code {
+  font-family: var(--label);
+  font-size: 0.85em;
+  color: var(--blue);
+  /* A token name broken at its hyphen reads as two tokens. */
+  white-space: nowrap;
+}
+
+.cs-steps {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.cs-steps li {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  align-items: baseline;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Token plates ------------------------------------------------------ */
+.cs-plates {
+  display: grid;
+  gap: 16px;
+  padding-block: clamp(64px, 8vw, 120px) 0;
+}
+
+@media (min-width: 768px) {
+  .cs-plates {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cs-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: clamp(20px, 2.5vw, 40px);
+  background: var(--surface);
+  border-radius: var(--cs-radius);
+}
+
+@media (min-width: 768px) {
+  .cs-plate--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.cs-plate__sub {
+  margin-top: 8px;
+}
+
+.cs-ramp-row {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .cs-ramp-row {
+    grid-template-columns: 64px 1fr;
+    align-items: start;
+  }
+}
+
+.cs-ramp-row__name {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.cs-ramp {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 4px;
+}
+
+.cs-ramp__swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cs-ramp__swatch span {
+  aspect-ratio: 1 / 1.4;
+  border-radius: 2px;
+  /* Keeps the 50/100 steps from dissolving into the plate's surface. */
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.cs-ramp__swatch small,
+.cs-radii small {
+  font-family: var(--label);
+  font-size: 10px;
+  color: var(--fg-dim);
+}
+
+.cs-type {
+  display: flex;
+  flex-direction: column;
+}
+
+.cs-type li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cs-type__sample {
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.cs-type__sample--display-xl { font-size: 60px; }
+.cs-type__sample--display-md { font-size: 36px; }
+.cs-type__sample--body-lg { font-size: 18px; }
+.cs-type__sample--ui-md { font-size: 14px; }
+
+.cs-spacing {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cs-spacing li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cs-spacing__bar {
+  height: 12px;
+  max-width: 60%;
+  background: var(--blue);
+  border-radius: 1px;
+}
+
+.cs-radii {
+  display: flex;
+  gap: 14px;
+}
+
+.cs-radii div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cs-radii span {
+  width: 44px;
+  height: 44px;
+  border-top: 1.5px solid var(--fg);
+  border-left: 1.5px solid var(--fg);
+}
+
+/* Image gallery ----------------------------------------------------- */
+.cs-gallery {
+  display: grid;
+  gap: clamp(32px, 4vw, 56px) 16px;
+  padding-block: clamp(64px, 8vw, 120px);
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 768px) {
+  .cs-gallery {
+    grid-template-columns: 1fr 1fr;
+  }
+  .cs-figure--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.cs-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cs-figure__media {
+  aspect-ratio: 10 / 7;
+  border-radius: var(--cs-radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.cs-figure--wide .cs-figure__media {
+  aspect-ratio: 16 / 8;
+}
+
+/* Outcomes ---------------------------------------------------------- */
+.cs-outcomes {
+  display: grid;
+  gap: 32px;
+}
+
+.cs-outcomes h3 {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  color: var(--blue);
+}
+
+.cs-outcomes ul {
+  border-top: 1px solid var(--line);
+}
+
+.cs-outcomes li {
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/* Pull quote -------------------------------------------------------- */
+.cs-quote {
+  padding-block: clamp(96px, 12vw, 200px);
+}
+
+.cs-quote p {
+  max-width: 20ch;
+  text-wrap: balance;
+  font-size: clamp(2.5rem, 5.5vw, 5.5rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+/* Next project ------------------------------------------------------ */
+.cs-next {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-block: 28px clamp(64px, 8vw, 120px);
+  border-top: 1px solid var(--fg);
+  margin-inline: calc(var(--cs-gutter) * -1);
+  padding-inline: var(--cs-gutter);
+}
+
+.cs-next__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  align-self: flex-start;
+  font-size: clamp(32px, 4.4vw, 72px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  transition: color 0.2s ease;
+}
+
+.cs-next__link:hover {
+  color: var(--blue);
+}
+
+.cs-next__link svg {
+  width: 0.7em;
+  height: 0.7em;
+  transition: transform 0.4s cubic-bezier(0.35, 0, 0, 1);
+}
+
+.cs-next__link:hover svg {
+  transform: translateX(8px);
+}
+
+/* Inside-the-project anchors ---------------------------------------- */
+.cs-anchors {
+  display: flex;
+  align-items: center;
+  gap: 0 22px;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--line);
+  /* One row that scrolls sideways on narrow screens, instead of wrapping
+     into ragged lines. Bled to the gutters so links scroll edge to edge. */
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(var(--cs-gutter) * -1);
+  padding-inline: var(--cs-gutter);
+}
+
+.cs-anchors::-webkit-scrollbar {
+  display: none;
+}
+
+.cs-anchors .cs-label {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.cs-anchors a {
+  flex-shrink: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--fg-dim);
+  transition: color 0.2s ease;
+}
+
+.cs-anchors a:hover,
+.cs-anchors a[aria-current] {
+  color: var(--blue);
+}
+
+/* Click-to-enlarge ---------------------------------------------------- */
+.cs-enlarge {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.cs-enlarge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.35, 0, 0, 1);
+}
+
+.cs-enlarge:hover img {
+  transform: scale(1.03);
+}
+
+.cs-enlarge__hint {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--cs-radius);
+  color: var(--fg);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s cubic-bezier(0.35, 0, 0, 1);
+}
+
+/* Same frosted chip as the site header (styles/utilities.css). */
+.cs-enlarge__hint {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+.cs-enlarge__hint svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.cs-enlarge:hover .cs-enlarge__hint,
+.cs-enlarge:focus-visible .cs-enlarge__hint {
+  opacity: 1;
+  transform: none;
+}
+
+.cs-enlarge:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* Touch has no hover — keep the hint visible so it's discoverable. */
+@media (hover: none) {
+  .cs-enlarge__hint {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cs-lightbox {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: clamp(16px, 4vw, 56px);
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+}
+
+.cs-lightbox[open] {
+  display: grid;
+  place-items: center;
+  animation: cs-lightbox-in 0.35s cubic-bezier(0.35, 0, 0, 1) both;
+}
+
+.cs-lightbox::backdrop {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.cs-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: var(--cs-radius);
+}
+
+.cs-lightbox__close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  height: 44px;
+  padding-inline: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--cs-radius);
+  background: var(--surface);
+  font-family: var(--sans);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.cs-lightbox__close:hover {
+  color: var(--blue);
+}
+
+@keyframes cs-lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-lightbox[open] {
+    animation: none;
+  }
+  .cs-enlarge img,
+  .cs-enlarge__hint {
+    transition: none;
+  }
+}

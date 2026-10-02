@@ -1,0 +1,12 @@
+/*
+ * SplitText word masks on the footer statement. Inline-blocks inherit the
+ * statement's first-line text-indent, which would indent every word inside
+ * its own mask and push the last letter out of the clip. The padding gives
+ * ascenders, descenders and tight-tracked overhang room inside the clip;
+ * the matching negative margin keeps the line layout unchanged.
+ */
+.site-footer__word-mask {
+  text-indent: 0;
+  padding: 0.12em;
+  margin: -0.12em;
+}
