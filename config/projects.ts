@@ -14,7 +14,7 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     title: "Paubha",
-    image: "/projects/project-a.webp",
+    image: "/projects/paubha/thumb.webp",
     depthImage: "/projects/project-a-depth.png",
     href: "/work/paubha-design-system",
   },

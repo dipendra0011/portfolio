@@ -2,7 +2,13 @@
 
 import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { gsap, useGSAP, createSmoother, MOTION_OK, ScrollTrigger } from "@/lib/gsap";
+import {
+  gsap,
+  useGSAP,
+  createSmoother,
+  MOTION_OK,
+  ScrollTrigger,
+} from "@/lib/gsap";
 
 /* Quiet period after the page stops changing height before re-measuring. */
 const REMEASURE_DELAY_MS = 150;

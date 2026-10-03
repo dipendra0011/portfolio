@@ -46,7 +46,9 @@ export function SiteHeader() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 px-5 pt-5 md:px-[22px] md:pt-[17px]",
           "transition-transform duration-500 ease-out-expo has-[:focus-visible]:translate-y-0 motion-reduce:transition-none",
-          hidden && !menuOpen ? "-translate-y-[calc(100%+8px)]" : "translate-y-0",
+          hidden && !menuOpen
+            ? "-translate-y-[calc(100%+8px)]"
+            : "translate-y-0",
         )}
       >
         <nav
@@ -73,13 +75,29 @@ export function SiteHeader() {
 
           <ul className={cn(chip, chipSurface, "hidden gap-2.5 md:flex")}>
             {siteConfig.nav.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="roll-trigger group">
-                  <RollText>{item.label}</RollText>
-                  {"count" in item && item.count !== undefined && (
-                    <NavCount count={item.count} />
-                  )}
-                </Link>
+              <li key={item.href} className="relative">
+                {"soon" in item && item.soon ? (
+                  <span
+                    aria-disabled="true"
+                    className="group inline-block cursor-default text-fg/60 outline-none"
+                    tabIndex={0}
+                  >
+                    {item.label}
+                    <span
+                      role="tooltip"
+                      className="pointer-events-none absolute top-full left-1/2 mt-3 -translate-x-1/2 whitespace-nowrap rounded-[4px] border border-line bg-bg px-2.5 py-1.5 text-[13px] text-fg opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                      Coming soon
+                    </span>
+                  </span>
+                ) : (
+                  <Link href={item.href} className="roll-trigger group">
+                    <RollText>{item.label}</RollText>
+                    {"count" in item && item.count !== undefined && (
+                      <NavCount count={item.count} />
+                    )}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

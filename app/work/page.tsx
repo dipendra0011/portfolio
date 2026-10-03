@@ -6,7 +6,7 @@ import { PROJECTS } from "@/config/projects";
 
 export const metadata: Metadata = {
   title: "Work — Dipendra Shrestha",
-  description: "Selected product design, design system and frontend work by Dipendra Shrestha.",
+  description: "Dashboards, tools and design systems I've designed for startups and scale-ups.",
 };
 
 export default function WorkPage() {

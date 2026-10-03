@@ -278,7 +278,7 @@ export function ProjectsSection({ intro = true }: { intro?: boolean }) {
     <section className="projects section-shell" id="projects" ref={rootRef}>
       {intro && (
         <div className="projects__intro">
-          <h2 className="display-statement projects__headline" ref={headlineRef}>
+          <h2 className="display-statement projects__headline" ref={headlineRef} data-bird-perch="end">
             {/* Space as its own text node BETWEEN the spans, not trailing
                 inside one. inline-block trims trailing whitespace inside itself
                 (its content is its own internal line, and whitespace at a

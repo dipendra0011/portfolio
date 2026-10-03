@@ -34,22 +34,23 @@ export function AboutMotion({ children }: { children: ReactNode }) {
               type: "words",
               wordsClass: "about-manifesto__word",
               autoSplit: true,
-              onSplit: (self) =>
-                gsap.fromTo(
-                  self.words,
-                  { opacity: MANIFESTO_DIM },
-                  {
-                    opacity: 1,
-                    ease: "none",
-                    stagger: 0.1,
-                    scrollTrigger: {
-                      trigger: manifesto,
-                      start: "top 80%",
-                      end: "bottom 45%",
-                      scrub: true,
-                    },
-                  }
-                ),
+              onSplit: (self) => {
+                // Dim every word up front. A staggered fromTo only applies its
+                // start state to words the scrub has reached, so on a load
+                // that starts mid-way the words further on stayed fully inked.
+                gsap.set(self.words, { opacity: MANIFESTO_DIM });
+                return gsap.to(self.words, {
+                  opacity: 1,
+                  ease: "none",
+                  stagger: 0.1,
+                  scrollTrigger: {
+                    trigger: manifesto,
+                    start: "top 80%",
+                    end: "bottom 45%",
+                    scrub: true,
+                  },
+                });
+              },
             })
           : null;
 

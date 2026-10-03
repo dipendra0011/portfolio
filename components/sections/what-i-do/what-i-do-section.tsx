@@ -6,7 +6,11 @@ import "./what-i-do-section.css";
 
 type Discipline = {
   title: string;
-  description: string;
+  /** Short right-hand label on the collapsed row. */
+  tag: string;
+  story: string[];
+  /** Tools and methods shown as chips. */
+  uses: string[];
   image: string;
 };
 
@@ -15,29 +19,47 @@ type Discipline = {
 const DISCIPLINES: Discipline[] = [
   {
     title: "Product design",
-    description:
-      "End-to-end product thinking, from messy problem to shipped flow. Research, journeys and interfaces that make complex tools feel obvious.",
+    tag: "Research to ship",
+    story: [
+      "I start with the messy brief and stay until it ships.",
+      "Research, flows and interfaces, so a product with a lot going on feels obvious to the person using it.",
+    ],
+    uses: ["Research", "User journeys", "Interfaces"],
     image: "/projects/project-a.webp",
   },
   {
     title: "Design system",
-    description:
-      "Tokens, components and documentation that keep teams shipping consistently. Built in Figma, mirrored in code, made to scale.",
-    image: "/projects/project-b.webp",
+    tag: "Tokens and docs",
+    story: [
+      "Tokens, components and docs that keep a team consistent without slowing it down.",
+      "I build them in Figma and mirror them in code, so design and engineering work from the same page.",
+    ],
+    uses: ["Tokens", "Components", "Documentation"],
+    image: "/projects/paubha/showcase.webp",
   },
   {
     title: "Graphics",
-    description:
-      "Brand visuals, illustration and campaign assets with a point of view. Made to stop the scroll and still hold up in print.",
+    tag: "Brand and campaign",
+    story: [
+      "This is where it started: drawing, then a graphic design course.",
+      "Brand visuals, illustration and campaign assets, made to stop the scroll and still hold up in print.",
+    ],
+    uses: ["Brand visuals", "Illustration", "Campaign assets"],
     image: "/projects/project-c.webp",
   },
   {
     title: "Motion and frontend",
-    description:
-      "Interfaces that move with intent. GSAP, WebGL and production React that turn a static comp into something people remember.",
+    tag: "GSAP, WebGL, React",
+    story: [
+      "Code taught me how products actually get built, even if it isn't my strongest skill.",
+      "So I use GSAP, WebGL and React where motion earns its place, and hand engineers something they can ship.",
+    ],
+    uses: ["GSAP", "WebGL", "React"],
     image: "/projects/gallery.webp",
   },
 ];
+
+const formatIndex = (i: number) => `[${String(i + 1).padStart(2, "0")}]`;
 
 /* While the panel is pinned it fills the screen edge to edge, so the header's
    idle "come back" would land on top of the rows. This flag keeps it tucked
@@ -45,8 +67,6 @@ const DISCIPLINES: Discipline[] = [
 const tuckHeader = (tucked: boolean) => {
   document.documentElement.toggleAttribute("data-header-tucked", tucked);
 };
-
-const formatIndex = (i: number) => `[${String(i + 1).padStart(2, "0")}]`;
 
 /* Pinned "marker" wipe: the stroke draws across the intro while its width
    swells from a pen line to a fill that covers the whole screen, handing off
@@ -60,6 +80,11 @@ const WIPE_STROKE_START = "5%";
 const WIPE_STROKE_END = "80%";
 const WIPE_DRAW_END = "0% 85%";
 
+// Must match the 15% inset / 130% size of .what-i-do-intro__stroke svg in the CSS.
+const STROKE_OVERSCAN = 0.15;
+const STROKE_PATH =
+  "M90 150C260 70 430 10 330 150S40 520 110 580 560 240 660 190 300 760 380 840 860 360 920 430 650 900 960 980";
+
 /* Rolling headline: chars flip up from behind the line like a drum. */
 const ROLL_ROTATION = -110;
 const ROLL_DEPTH = 0.6; // × font-size
@@ -71,10 +96,34 @@ const ROLL_START = "top 70%";
 /* Bracket heading: brackets close in on the word as it scrolls up. */
 const BRACKET_OFFSET = 160; // xPercent
 
-/* Desktop accordion: where the image sits inside each panel. Must match
-   .discipline__media in what-i-do-section.css. */
-const MEDIA_LEFT = "29%";
-const MEDIA_WIDTH = "71%";
+/* Desktop accordion: where the image sits inside its slot (the grid cell under
+   the copy, see .discipline__media-slot in what-i-do-section.css). */
+const MEDIA_LEFT = "0%";
+const MEDIA_WIDTH = "100%";
+
+/* Incoming numeral rises this far (of its own height) as its discipline opens. */
+const NUMERAL_RISE = 35;
+// Numeral font-size as a fraction of the (shortest) open panel height.
+const NUMERAL_SCALE = 0.95;
+
+function IntroContent({ headingId }: { headingId?: string }) {
+  return (
+    <div className="what-i-do-intro__content">
+      <p className="what-i-do-intro__statement">
+        Design for the brand, the person <span className="what-i-do-intro__statement-lead">and the engineer.</span>
+      </p>
+      <h2 className="what-i-do-intro__heading" id={headingId} data-bird-perch="end">
+        <span className="what-i-do-intro__bracket what-i-do-intro__bracket--left" aria-hidden>
+          [
+        </span>
+        What I do
+        <span className="what-i-do-intro__bracket what-i-do-intro__bracket--right" aria-hidden>
+          ]
+        </span>
+      </h2>
+    </div>
+  );
+}
 
 export function WhatIDoSection() {
   const rootRef = useRef<HTMLElement>(null);
@@ -87,7 +136,23 @@ export function WhatIDoSection() {
       mm.add(MOTION_OK, () => {
         // --- Marker wipe ---
         const intro = root.querySelector<HTMLElement>(".what-i-do-intro")!;
-        const strokes = intro.querySelectorAll<SVGPathElement>(".what-i-do-intro__stroke path");
+        const strokes = intro.querySelectorAll<SVGPathElement>(".what-i-do-intro__wipe-path");
+
+        // The off-white headline copy is revealed through a mask holding the
+        // same path as the stroke, so it flips colour exactly where the blue
+        // covers it. The mask lives in plain pixel space, so it's fitted to
+        // the stroke's oversized, non-uniformly stretched viewBox by hand.
+        const maskGroup = intro.querySelector<SVGGElement>(".what-i-do-intro__mask-group")!;
+        const fitMask = () => {
+          const { clientWidth: w, clientHeight: h } = intro;
+          maskGroup.setAttribute(
+            "transform",
+            `translate(${-w * STROKE_OVERSCAN} ${-h * STROKE_OVERSCAN}) scale(${(w * (1 + 2 * STROKE_OVERSCAN)) / 1000} ${(h * (1 + 2 * STROKE_OVERSCAN)) / 1000})`
+          );
+        };
+        fitMask();
+        const maskObserver = new ResizeObserver(fitMask);
+        maskObserver.observe(intro);
 
         gsap.set(strokes, { strokeWidth: WIPE_STROKE_START, drawSVG: "0% 0%" });
         gsap
@@ -151,7 +216,10 @@ export function WhatIDoSection() {
         });
 
         // SplitText's spans aren't unwound by gsap's context revert.
-        return () => split.revert();
+        return () => {
+          split.revert();
+          maskObserver.disconnect();
+        };
       });
 
       const panel = root.querySelector<HTMLElement>(".what-i-do-panel")!;
@@ -160,7 +228,8 @@ export function WhatIDoSection() {
         row: item.querySelector<HTMLElement>(".discipline__row")!,
         body: item.querySelector<HTMLElement>(".discipline__body")!,
         media: item.querySelector<HTMLElement>(".discipline__media")!,
-        description: item.querySelector<HTMLElement>(".discipline__description")!,
+        numeral: item.querySelector<HTMLElement>(".discipline__numeral")!,
+        content: item.querySelector<HTMLElement>(".discipline__content")!,
       }));
 
       // --- Desktop: pinned accordion with sweeping images ---
@@ -178,6 +247,12 @@ export function WhatIDoSection() {
             const prevRow = i > 0 ? items[i - 1].row.offsetHeight : 0;
             return Math.max(available - row.offsetHeight - prevRow, 0);
           });
+          // The inner layout is sized off each panel's own open height (CSS).
+          items.forEach(({ body }, i) => body.style.setProperty("--discipline-open", `${openHeights[i]}px`));
+          // The first panel has no collapsed row above it, so it opens taller.
+          // The numeral is sized off the shortest one so all four match.
+          const numeralSize = Math.min(...openHeights.filter((h) => h > 0)) * NUMERAL_SCALE;
+          panel.style.setProperty("--discipline-numeral-size", `${numeralSize}px`);
         };
         // Lifts the list so the row above the active one sits at the top.
         const listOffset = (active: number) => {
@@ -190,6 +265,11 @@ export function WhatIDoSection() {
         items.forEach(({ body, media }, i) => {
           gsap.set(body, { height: i === 0 ? openHeights[0] : 0 });
           gsap.set(media, { left: MEDIA_LEFT, width: i === 0 ? MEDIA_WIDTH : "0%" });
+        });
+
+        items.forEach(({ numeral, content }, i) => {
+          gsap.set(numeral, { "--rise": i === 0 ? 0 : NUMERAL_RISE });
+          gsap.set(content, { opacity: i === 0 ? 1 : 0 });
         });
 
         const tl = gsap.timeline({
@@ -233,22 +313,31 @@ export function WhatIDoSection() {
               { y: () => listOffset(i + 1), duration: 1, ease: "none", immediateRender: false },
               i
             )
-            // The copy is bottom-anchored, so a closing panel would otherwise
-            // slice it from the top. It leaves early and arrives late.
-            .to(current.description, { opacity: 0, duration: 0.4, ease: "none" }, i)
+            // Incoming numeral rises into place as its discipline opens, like
+            // the About chapters.
             .fromTo(
-              next.description,
+              next.numeral,
+              { "--rise": NUMERAL_RISE },
+              { "--rise": 0, duration: 0.6, ease: "power2.out", immediateRender: false },
+              i
+            )
+            // The copy is clipped by its closing panel, so it leaves early
+            // and the incoming copy arrives late.
+            .to(current.content, { opacity: 0, duration: 0.4, ease: "none" }, i)
+            .fromTo(
+              next.content,
               { opacity: 0 },
               { opacity: 1, duration: 0.4, ease: "none", immediateRender: false },
               i + 0.6
             );
         });
-        items.slice(1).forEach(({ description }) => gsap.set(description, { opacity: 0 }));
         // Hold on the last discipline for the final viewport of the pin.
         tl.to({}, { duration: 1 });
 
         return () => {
           panel.classList.remove("what-i-do-panel--pinned");
+          panel.style.removeProperty("--discipline-numeral-size");
+          gsap.set(items.map(({ numeral }) => numeral), { clearProps: "--rise" });
           tuckHeader(false);
         };
       });
@@ -293,25 +382,13 @@ export function WhatIDoSection() {
   return (
     <section className="what-i-do" id="what-i-do" aria-labelledby="what-i-do-heading" ref={rootRef}>
       <div className="what-i-do-intro">
-        <div className="what-i-do-intro__content">
-          <p className="what-i-do-intro__statement">
-            Thoughtful craft. <span className="what-i-do-intro__statement-lead">Bold outcomes.</span>
-          </p>
-          <h2 className="what-i-do-intro__heading" id="what-i-do-heading">
-            <span className="what-i-do-intro__bracket what-i-do-intro__bracket--left" aria-hidden>
-              [
-            </span>
-            What I do
-            <span className="what-i-do-intro__bracket what-i-do-intro__bracket--right" aria-hidden>
-              ]
-            </span>
-          </h2>
-        </div>
+        <IntroContent headingId="what-i-do-heading" />
 
         <div className="what-i-do-intro__stroke" aria-hidden>
           <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" fill="none">
             <path
-              d="M90 150C260 70 430 10 330 150S40 520 110 580 560 240 660 190 300 760 380 840 860 360 920 430 650 900 960 980"
+              className="what-i-do-intro__wipe-path"
+              d={STROKE_PATH}
               stroke="currentColor"
               strokeWidth="0"
               strokeLinecap="round"
@@ -319,6 +396,29 @@ export function WhatIDoSection() {
             />
           </svg>
         </div>
+
+        {/* Off-white copy of the headline, drawn above the stroke and visible
+            only where the stroke's mask covers it. */}
+        <svg className="what-i-do-intro__inverted" aria-hidden>
+          <defs>
+            <mask id="what-i-do-wipe-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+              <g className="what-i-do-intro__mask-group">
+                <path
+                  className="what-i-do-intro__wipe-path"
+                  d={STROKE_PATH}
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="0"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </g>
+            </mask>
+          </defs>
+          <foreignObject x="0" y="0" width="100%" height="100%" mask="url(#what-i-do-wipe-mask)">
+            <IntroContent />
+          </foreignObject>
+        </svg>
       </div>
 
       <div className="what-i-do-panel">
@@ -326,15 +426,47 @@ export function WhatIDoSection() {
           <ol className="what-i-do-panel__list">
             {DISCIPLINES.map((discipline, i) => (
               <li className="discipline" key={discipline.title}>
-                <div className="discipline__row">
+                {/* The row repeats the heading in the body, for sighted
+                    scanning; screen readers get the heading. */}
+                <div className="discipline__row" aria-hidden>
                   <span className="discipline__index">{formatIndex(i)}</span>
-                  <h3 className="discipline__title">{discipline.title}</h3>
+                  <span className="discipline__title">{discipline.title}</span>
+                  <span className="discipline__tag">{discipline.tag}</span>
                 </div>
                 <div className="discipline__body">
-                  <p className="discipline__description">{discipline.description}</p>
-                  <div className="discipline__media">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={discipline.image} alt="" loading="lazy" draggable={false} />
+                  <div className="discipline__inner">
+                    <div className="discipline__numeral" data-digit={i + 1} aria-hidden>
+                      <span className="discipline__numeral-glyph">
+                        <span className="discipline__numeral-ghost">{i + 1}</span>
+                        {i + 1}
+                      </span>
+                    </div>
+
+                    <div className="discipline__content">
+                      <div className="discipline__text">
+                        <h3 className="discipline__heading">{discipline.title}</h3>
+                        <div className="discipline__story">
+                          {discipline.story.map((paragraph) => (
+                            <p key={paragraph}>{paragraph}</p>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="discipline__uses">
+                        <span className="discipline__uses-label">What I use</span>
+                        <ul className="discipline__chips">
+                          {discipline.uses.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="discipline__media-slot">
+                      <div className="discipline__media">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={discipline.image} alt="" loading="lazy" draggable={false} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </li>

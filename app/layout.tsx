@@ -1,7 +1,25 @@
 import type { Metadata } from "next";
+import { Bricolage_Grotesque, Geist, JetBrains_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
+
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-bricolage",
+  display: "swap",
+});
+const sans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -10,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}>
       {/* Browser extensions (e.g. ColorZilla's cz-shortcut-listen) add
           attributes to <body> before React hydrates. This only silences
           attribute mismatches on <body> itself, not on anything inside it. */}

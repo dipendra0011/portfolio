@@ -47,6 +47,8 @@ const MASCOTS = [
     width: 600,
     height: 537,
     scale: 0.7,
+    // The home page's flying bird flies home into this one.
+    perch: "home",
   },
 ];
 
@@ -94,7 +96,8 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
 }
 
-const label = "font-label text-[12px] uppercase leading-none tracking-[0.02em] text-fg-dim";
+const label =
+  "font-label text-[12px] uppercase leading-none tracking-[0.02em] text-fg-dim";
 
 export function SiteFooter() {
   const rootRef = useRef<HTMLElement>(null);
@@ -138,7 +141,9 @@ export function SiteFooter() {
       mm.add(MOTION_OK, () => {
         const sheet = root.querySelector<HTMLElement>(".site-footer__sheet")!;
         const chars = root.querySelectorAll<HTMLElement>(".site-footer__char");
-        const statement = root.querySelector<HTMLElement>(".site-footer__statement")!;
+        const statement = root.querySelector<HTMLElement>(
+          ".site-footer__statement",
+        )!;
 
         gsap
           .timeline({
@@ -150,7 +155,12 @@ export function SiteFooter() {
               scrub: true,
             },
           })
-          .fromTo(sheet, { yPercent: CURTAIN_SHIFT }, { yPercent: 0, duration: 1 }, 0)
+          .fromTo(
+            sheet,
+            { yPercent: CURTAIN_SHIFT },
+            { yPercent: 0, duration: 1 },
+            0,
+          )
           .fromTo(
             chars,
             { yPercent: 105 },
@@ -175,7 +185,11 @@ export function SiteFooter() {
               duration: 1.1,
               ease: "lusion",
               stagger: 0.025,
-              scrollTrigger: { trigger: root, start: STATEMENT_START, once: true },
+              scrollTrigger: {
+                trigger: root,
+                start: STATEMENT_START,
+                once: true,
+              },
             }),
         });
       });
@@ -200,7 +214,9 @@ export function SiteFooter() {
             <div
               className="grid max-w-full items-end [--mascot-h:100px] md:[--mascot-h:clamp(110px,10vw,150px)]"
               style={{
-                gridTemplateColumns: MASCOT_COLUMNS.map((c) => `${c}fr`).join(" "),
+                gridTemplateColumns: MASCOT_COLUMNS.map((c) => `${c}fr`).join(
+                  " ",
+                ),
                 columnGap: MASCOT_GAP_PX,
                 width: `calc(var(--mascot-h) * ${MASCOT_ROW} + ${MASCOT_GAP_PX * (MASCOTS.length - 1)}px)`,
               }}
@@ -208,8 +224,11 @@ export function SiteFooter() {
               {MASCOTS.map((m) => (
                 // Animated files can't be paused, so reduced motion gets
                 // their first frame instead.
-                <picture key={m.src} className="block">
-                  <source media="(prefers-reduced-motion: reduce)" srcSet={m.still} />
+                <picture key={m.src} className="block" data-bird-perch={"perch" in m ? m.perch : undefined}>
+                  <source
+                    media="(prefers-reduced-motion: reduce)"
+                    srcSet={m.still}
+                  />
                   <img
                     src={m.src}
                     alt={m.alt}
@@ -233,15 +252,17 @@ export function SiteFooter() {
           {/* Statement + meta */}
           <div className="flex flex-col justify-between gap-20 border-line pb-10 md:col-span-9 md:border-l md:pt-32 md:pb-9 md:pl-9">
             <p className="site-footer__statement max-w-[22ch] text-[clamp(2.25rem,5.2vw,5.5rem)] font-medium leading-[0.95] tracking-[-0.045em] md:max-w-none md:indent-[calc(100%/9)]">
-              Got a product that&apos;s grown complicated?{" "}
-              <span className="text-blue">Let&apos;s make it feel obvious.</span>
+              Got a product with a lot going on?{" "}
+              <span className="text-blue">
+                Let&apos;s make it feel obvious.
+              </span>
             </p>
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-10 text-[15px] leading-[1.35] md:grid-cols-4">
               <div className="flex flex-col gap-3">
                 <span className={label}>Status</span>
                 <p>
-                  Available for work
+                  Open to work
                   <br />
                   <span className="text-fg-dim">Full-time or contract</span>
                 </p>
@@ -259,7 +280,12 @@ export function SiteFooter() {
                     viewBox="0 0 10 10"
                     className="size-2.5 transition-[transform,color] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue"
                   >
-                    <path d="M2 8 8 2M3 2h5v5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <path
+                      d="M2 8 8 2M3 2h5v5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                    />
                   </svg>
                 </Link>
               </div>
@@ -290,7 +316,12 @@ export function SiteFooter() {
                     viewBox="0 0 10 10"
                     className="size-2.5 transition-[transform,color] group-hover:-translate-y-0.5 group-hover:text-blue"
                   >
-                    <path d="M5 9V1M1.5 4.5 5 1l3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <path
+                      d="M5 9V1M1.5 4.5 5 1l3.5 3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                    />
                   </svg>
                 </button>
               </div>

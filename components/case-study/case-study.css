@@ -103,7 +103,7 @@ html:has(.cs) {
 
 /* Hero image -------------------------------------------------------- */
 .cs-hero {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 10 / 7;
   margin-top: clamp(32px, 4vw, 56px);
   border-radius: var(--cs-radius);
   overflow: hidden;
@@ -374,6 +374,10 @@ html:has(.cs) {
 
 .cs-figure--wide .cs-figure__media {
   aspect-ratio: 16 / 8;
+}
+
+.cs-figure--showcase .cs-figure__media {
+  aspect-ratio: 16 / 9;
 }
 
 /* Outcomes ---------------------------------------------------------- */

@@ -12,83 +12,56 @@ import "@/components/case-study/case-study.css";
 export const metadata: Metadata = {
   title: "Paubha Design System — Dipendra Shrestha",
   description:
-    "Case study: building Paubha, a token-driven design system mirrored one-to-one between Figma and code.",
+    "Paubha: an open-source design system where Figma and code share one source of truth.",
 };
 
-/* ------------------------------------------------------------------
-   Copy + placeholder data. Everything marked TODO is a stand-in — swap
-   the numbers, dates and images for real ones before this goes live.
-   ------------------------------------------------------------------ */
+/* Copy reflects what actually shipped. Remaining TODOs:
+   - Timeline: confirm the months.
+   - Figure captions: make sure each caption matches its image. */
 
 const META = [
-  { label: "Role", value: "Author, Product Designer" },
-  { label: "Team", value: "Solo, with engineering review" }, // TODO
-  { label: "Timeline", value: "2025 – 2026" }, // TODO
+  { label: "Role", value: "Designer & engineer" },
+  { label: "Team", value: "Solo" },
+  { label: "Timeline", value: "2026" }, // TODO: add months
   { label: "Focus", value: "Design systems · Tokens · Frontend" },
 ];
 
 const APPROACH = [
-  "Audited existing screens and pulled every colour, size and radius into one inventory.",
-  "Split tokens into two layers: primitives (raw scales) and semantics (what a value is for).",
-  "Built light and dark modes on the semantic layer only, so components never touch a hex.",
-  "Set a 4px spacing base and a squircle-leaning radius scale shared by Figma and CSS.",
-  "Built components in Figma first, then mirrored each one in React with matching variants.",
-  "Wrote a sync log so every token change is traceable back to a Figma node.",
+  "Every colour, space and radius is defined once, and named for what it does rather than how it looks.",
+  "Figma and code use the exact same names, so designs hand off without translation.",
+  "Light and dark themes are built into the tokens, so every component supports both by default.",
+  "One sizing scale keeps buttons, inputs and selects aligned whenever they sit side by side.",
+  "Every interactive element shares the same soft focus ring, so the whole system feels like one product.",
+  "Components install with a single command and live in your codebase, so teams fully own them.",
+  "Accessibility is built in, with keyboard support and screen reader labels on every component.",
 ];
 
 const OUTCOMES = [
   {
     title: "What shipped",
     items: [
-      "11-step brand, gray and status ramps",
-      "Semantic tokens for bg, fg, border and focus, in light and dark",
-      "Spacing, radius, shadow and type scales as Tailwind v4 theme tokens",
-      "Component library with variants and states, mirrored in code",
+      "33 core components, from buttons and inputs to menus, dialogs and tables",
+      "Nearly 50 ready-made patterns for real screens: dashboards, settings, sign-in, pricing and more",
+      "Light and dark themes built on one shared set of tokens",
+      "A live documentation site and an open-source library anyone can install",
     ],
   },
   {
-    title: "What I observed",
+    title: "What I learned",
     items: [
-      "New screens get assembled from existing parts instead of redrawn",
-      "Dark mode came almost for free once semantics were in place",
-      "Design and code disagreements became diffs, not debates",
+      "Strong foundations make everything faster. New screens get assembled, not redrawn",
+      "Small, repeated details, like one shared focus ring, are what make a system feel designed",
+      "Examples matter as much as components. People learn a system by seeing it used",
     ],
   },
   {
-    title: "What this case doesn’t claim",
+    title: "Built for",
     items: [
-      "No formal before/after time study was run", // TODO: replace if you have numbers
-      "Adoption figures are directional, not measured",
+      "Product teams who want design and code to stay aligned",
+      "Developers who want accessible components they fully own",
+      "Designers who want a Figma library that matches production",
     ],
   },
-];
-
-const BRAND_RAMP = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-const GRAY_RAMP = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-
-const TYPE_SCALE = [
-  { token: "display-xl", size: "60 / 72" },
-  { token: "display-md", size: "36 / 44" },
-  { token: "body-lg", size: "18 / 28" },
-  { token: "ui-md", size: "14 / 20" },
-];
-
-const SPACING = [
-  { token: "xs", px: 4 },
-  { token: "md", px: 8 },
-  { token: "xl", px: 16 },
-  { token: "3xl", px: 24 },
-  { token: "4xl", px: 32 },
-  { token: "6xl", px: 48 },
-  { token: "7xl", px: 64 },
-];
-
-const RADII = [
-  { token: "xs", px: 4 },
-  { token: "sm", px: 8 },
-  { token: "md", px: 12 },
-  { token: "lg", px: 16 },
-  { token: "xl", px: 20 },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -126,9 +99,22 @@ function Section({
   );
 }
 
-function Figure({ src, caption, wide }: { src: string; caption: string; wide?: boolean }) {
+function Figure({
+  src,
+  caption,
+  wide,
+  showcase,
+}: {
+  src: string;
+  caption: string;
+  wide?: boolean;
+  showcase?: boolean;
+}) {
+  const cls = ["cs-figure", wide && "cs-figure--wide", showcase && "cs-figure--showcase", "cs-reveal"]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <figure className={wide ? "cs-figure cs-figure--wide cs-reveal" : "cs-figure cs-reveal"}>
+    <figure className={cls}>
       <div className="cs-figure__media">
         <EnlargeImage src={src} alt={caption} />
       </div>
@@ -151,7 +137,7 @@ export default function PaubhaCaseStudyPage() {
           <header className="cs-header">
             <p className="cs-label cs-intro--eyebrow">Case study · Design system</p>
             <h1 className="cs-title">
-              Paubha<span className="cs-title__dim">: built once in Figma, shipped everywhere in code.</span>
+              Paubha<span className="cs-title__dim">: one system, from Figma to production.</span>
             </h1>
 
             <dl className="cs-meta cs-intro--rest">
@@ -164,30 +150,27 @@ export default function PaubhaCaseStudyPage() {
             </dl>
           </header>
 
-          {/* Hero — TODO: replace with a real cover shot */}
+          {/* Hero */}
           <div className="cs-hero cs-cover cs-intro--rest">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/projects/project-b.webp" alt="Paubha design system overview" />
+            <img src="/projects/paubha/cover.webp" alt="Paubha design system overview" />
           </div>
 
           <CaseStudyAnchors items={SECTIONS} />
 
           <Section id="challenge" index="01">
             <p>
-              Every new screen was being drawn from scratch. Blues drifted between files, spacing was
-              eyeballed, and dark mode meant duplicating whole frames. Design and code each had their
-              own version of the truth, and they rarely agreed.
+              Design systems usually live in two places. Designers work from a Figma file, engineers
+              work from a code library, and over time the two drift apart. A colour gets updated in
+              one and not the other. A button looks one way in the mockup and another in the product.
             </p>
-            <p>
-              The goal was one source of truth: a system where a value is decided once, named for
-              what it does, and reaches both Figma and production without anyone retyping it.
-            </p>
+            <p>Paubha started with a simple question: what if there was only one source of truth?</p>
           </Section>
 
           <Section id="approach" index="02">
             <p>
-              I started with tokens, not components. If the foundations are wrong, every component
-              built on top inherits the mistake.
+              I started with the foundations, not the components. Get the tokens right and everything
+              built on top of them stays consistent.
             </p>
             <ol className="cs-steps">
               {APPROACH.map((step, i) => (
@@ -199,93 +182,29 @@ export default function PaubhaCaseStudyPage() {
             </ol>
           </Section>
 
-          {/* Foundations — rendered live from the real tokens, so these never
-              need a screenshot. */}
-          <section className="cs-plates" aria-labelledby="foundations-title">
-            <h2 id="foundations-title" className="sr-only">
-              Foundations
-            </h2>
-            <div className="cs-plate cs-plate--wide cs-reveal">
-              <p className="cs-label">Colour · primitives</p>
-              {[
-                { name: "Brand", token: "brand", ramp: BRAND_RAMP },
-                { name: "Gray", token: "gray", ramp: GRAY_RAMP },
-              ].map(({ name, token, ramp }) => (
-                <div key={token} className="cs-ramp-row">
-                  <span className="cs-ramp-row__name">{name}</span>
-                  {/* One labelled image per ramp: eleven bare numbers read
-                      out one by one tell a screen reader user nothing. */}
-                  <div
-                    className="cs-ramp"
-                    role="img"
-                    aria-label={`${name} ramp, ${ramp.length} steps from ${ramp[0]} to ${ramp[ramp.length - 1]}`}
-                  >
-                    {ramp.map((step) => (
-                      <div key={step} className="cs-ramp__swatch" aria-hidden>
-                        <span style={{ background: `var(--${token}-${step})` }} />
-                        <small>{step}</small>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="cs-plate cs-reveal">
-              <p className="cs-label">Type scale</p>
-              <ul className="cs-type">
-                {TYPE_SCALE.map((t) => (
-                  <li key={t.token}>
-                    <span className={`cs-type__sample cs-type__sample--${t.token}`}>Aa</span>
-                    <span className="cs-label">
-                      {t.token} · {t.size}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="cs-plate cs-reveal">
-              <p className="cs-label">Spacing · 4px base</p>
-              <ul className="cs-spacing">
-                {SPACING.map((s) => (
-                  <li key={s.token}>
-                    <span className="cs-spacing__bar" style={{ width: s.px * 3 }} aria-hidden />
-                    <span className="cs-label">
-                      {s.token} · {s.px}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p className="cs-label cs-plate__sub">Radius</p>
-              <div className="cs-radii">
-                {RADII.map((r) => (
-                  <div key={r.token}>
-                    <span style={{ borderTopLeftRadius: r.px }} aria-hidden />
-                    <small>{r.px}</small>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          <div className="cs-gallery cs-gallery--single">
+            {/* TODO: confirm caption matches the image */}
+            <Figure src="/projects/paubha/showcase.webp" caption="System showcase — colour, actions, type, controls" wide showcase />
+          </div>
 
           <Section id="changed" index="03">
             <p>
-              Before, a button colour lived in a dozen places. Now it lives in one:{" "}
-              <code>--bg-brand-solid</code>. Components only reference semantic tokens, so a change to
-              the brand ramp or a new dark-mode value updates every surface at once.
+              With Paubha, a button’s colour lives in one place: <code>--bg-brand-solid</code>.
+              Change it once and every screen updates, in the design file and in the product.
             </p>
             <p>
-              Figma and code share the same names, the same scales and the same states. Handoff
-              stopped being a translation step.
+              Switching a whole product to dark mode, or to a new brand colour, becomes a token
+              change instead of a redesign.
             </p>
           </Section>
 
-          {/* TODO: replace with component library + docs screenshots */}
           <div className="cs-gallery">
-            <Figure src="/projects/project-a.webp" caption="Component library — buttons, inputs, badges" />
-            <Figure src="/projects/project-c.webp" caption="Light and dark semantic tokens" />
-            <Figure src="/projects/gallery.webp" caption="Documentation site" wide />
+            {/* TODO: confirm caption matches the image */}
+            <Figure src="/projects/paubha/components.webp" caption="Component library — sign-in, stats, cards, testimonials" />
+            {/* TODO: confirm caption matches the image */}
+            <Figure src="/projects/paubha/tokens.webp" caption="Spacing and radius scales" />
+            {/* TODO: confirm caption matches the image */}
+            <Figure src="/projects/paubha/docs.webp" caption="Documentation site — colours, typography, components" wide />
           </div>
 
           <Section id="outcomes" index="04">
@@ -305,14 +224,13 @@ export default function PaubhaCaseStudyPage() {
 
           <Section id="next" index="05">
             <p>
-              A system is never finished. Next up: application-level patterns (grids, forms, empty
-              states), automated token sync from Figma variables, and contribution guidelines so
-              others can extend Paubha without breaking it.
+              Paubha is open source and still growing. Next up: a published Figma library, more
+              real-world examples, and room for others to contribute.
             </p>
           </Section>
 
           <blockquote className="cs-quote cs-reveal">
-            <p>“A design system only works when using it is easier than working around it.”</p>
+            <p>“If design and code can disagree, eventually they will.”</p>
           </blockquote>
 
           <nav className="cs-next" aria-label="Keep exploring">

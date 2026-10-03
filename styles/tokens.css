@@ -19,24 +19,25 @@
   --base-white: #ffffff;
   --base-black: #000000;
 
-  /* brand — true blue; brand/600 is primary
+  /* brand — orange-red (#eb5939); brand/600 is primary. Ramp regenerated from it
+     by hand; the older blue-era notes below are historical.
      Corrected 2026-09-11 — full ramp re-synced against Figma's current
      "Brand Palette" frame (Foundations / Colors, node 2066:14533 ->
      6180:1277), which now generates the ramp from brand/500 = #4469E5 as
      keystone. Confirmed via two independent, mutually-consistent swatches
      on that same canonical page (Brand Palette ramp + Status Colors "Info"
      panel, both #4469E5) — see SYNC_LOG.md Phase 1 entry. */
-  --brand-50: #f0f4fe;
-  --brand-100: #dde5fc;
-  --brand-200: #c2d1f9;
-  --brand-300: #98b3f4;
-  --brand-400: #678bec;
-  --brand-500: #4469e5;
-  --brand-600: #2e4dd9;
-  --brand-700: #273ec7;
-  --brand-800: #2535a2;
-  --brand-900: #243380;
-  --brand-950: #1a2150;
+  --brand-50: #fff3f0;
+  --brand-100: #fde3dd;
+  --brand-200: #fbcbc1;
+  --brand-300: #f6a492;
+  --brand-400: #f07f66;
+  --brand-500: #ed684a;
+  --brand-600: #eb5939;
+  --brand-700: #d04425;
+  --brand-800: #9d3a25;
+  --brand-900: #773222;
+  --brand-950: #492118;
 
   /* gray — cool bias to harmonize with brand
      Corrected 2026-09-11 — gray-200 and gray-800 re-synced against Figma's

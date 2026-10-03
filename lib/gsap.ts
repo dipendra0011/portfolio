@@ -5,6 +5,7 @@ import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 
 if (typeof window !== "undefined") {
@@ -15,6 +16,7 @@ if (typeof window !== "undefined") {
     SplitText,
     CustomEase,
     DrawSVGPlugin,
+    Flip,
     useGSAP
   );
   // lusion.co's house curve, lifted from their production bundle — a slow
@@ -49,7 +51,7 @@ export function getSmoother() {
   return smootherInstance;
 }
 
-export { gsap, ScrollTrigger, ScrollSmoother, ScrambleTextPlugin, SplitText, DrawSVGPlugin, useGSAP };
+export { gsap, ScrollTrigger, ScrollSmoother, ScrambleTextPlugin, SplitText, DrawSVGPlugin, Flip, useGSAP };
 
 /** How long the page keeps gliding after the wheel stops. */
 export const SMOOTH_SECONDS = 1;

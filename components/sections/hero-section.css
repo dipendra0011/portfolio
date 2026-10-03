@@ -1,0 +1,91 @@
+/* The red-pen edit, see hero-section.tsx. */
+
+.hero-edit__word {
+  position: relative;
+  display: inline-block;
+  /* The word gap lives on the word, so a struck word takes its space with it
+     when it's removed. */
+  margin-right: 0.24em;
+  transition: color 0.8s ease;
+}
+
+.hero-edit__word:last-child {
+  margin-right: 0;
+}
+
+.hero-edit__word.is-kept {
+  color: var(--color-blue);
+}
+
+/* Return visits within a page load land on the finished edit, no fade. */
+.hero-edit__word.is-instant {
+  transition: none;
+}
+
+.hero-edit__strike {
+  position: absolute;
+  left: -0.06em;
+  right: -0.06em;
+  top: 0.12em;
+  height: 0.7em;
+  width: calc(100% + 0.12em);
+  overflow: visible;
+  pointer-events: none;
+  filter: url(#hero-crayon);
+}
+
+.hero-edit__strike path {
+  fill: none;
+  stroke: var(--color-blue);
+  stroke-width: 0.09em;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Stands on the baseline of the last line, mirrored so it faces the
+   headline. */
+.hero-edit__bird {
+  position: relative;
+  display: inline-block;
+  height: 0.8em;
+  width: 0.94em; /* matches the sprite frame's 370 x 314 */
+  margin-left: 0.18em;
+  vertical-align: baseline;
+}
+
+/* Still first frame, mirrored to face the headline. Only shown with reduced
+   motion; otherwise the slot stays empty and <BirdCompanion /> perches on it. */
+.hero-edit__bird-flap {
+  position: absolute;
+  inset: 0;
+  background: url("/footer/bird-flap.png") 0 0 / 600% 100% no-repeat;
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-edit__bird-flap {
+    display: none;
+  }
+}
+
+/* Hidden until the script takes over, so the draft never flashes up
+   unstyled. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-edit__draft,
+  .hero-edit__intro,
+  .hero-edit__bird {
+    visibility: hidden;
+  }
+}
+
+/* Reduced motion: skip straight to the finished edit. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-edit__word[data-cut] {
+    display: none;
+  }
+
+  .hero-edit__word {
+    color: var(--color-blue);
+  }
+}

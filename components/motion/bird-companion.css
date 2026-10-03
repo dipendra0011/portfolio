@@ -1,0 +1,57 @@
+/* Fixed above the page but never in the cursor's way. Reduced motion never
+   shows it: the hero's slot shows a still frame instead. */
+.bird-companion {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bird-companion {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40; /* under the header (50) and the mobile menu (60) */
+    display: block;
+    width: 96px;
+    height: 81px;
+    pointer-events: none;
+    will-change: transform;
+  }
+}
+
+/* Six frames side by side; stepping background-position shows one at a
+   time. Unhurried while perched, quicker in flight. */
+.bird-companion__sprite {
+  position: absolute;
+  inset: 0;
+  background: url("/footer/bird-flap.png") 0 0 / 600% 100% no-repeat;
+  animation: bird-companion-flap 0.9s steps(6) infinite;
+}
+
+.bird-companion.is-flying .bird-companion__sprite {
+  animation-duration: 0.6s;
+}
+
+.bird-companion.is-climbing .bird-companion__sprite {
+  animation-duration: 0.4s;
+}
+
+/* Wings held out (the first frame is the glide pose). */
+.bird-companion.is-gliding .bird-companion__sprite {
+  animation: none;
+}
+
+@keyframes bird-companion-flap {
+  to {
+    background-position: 120% 0;
+  }
+}
+
+/* The footer's bird is away until the flying one lands on it. */
+[data-bird-perch="home"][data-bird-away] {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+[data-bird-perch="home"][data-bird-away].is-home {
+  opacity: 1;
+}

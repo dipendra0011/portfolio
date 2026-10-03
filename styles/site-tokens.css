@@ -12,9 +12,9 @@
      panel. Any lighter/darker shade is mixed from this, never a second hex. */
   --blue: var(--brand-600);
 
-  --display: "GT Standard Extended", sans-serif;
-  --sans: "GT Standard", sans-serif;
-  --label: "GT Standard Mono", monospace;
+  --display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --label: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 @theme inline {

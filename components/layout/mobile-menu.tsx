@@ -63,16 +63,28 @@ export function MobileMenu({ id, open, onClose }: MobileMenuProps) {
       <ul className="mt-auto flex flex-col gap-1 px-3.5">
         {items.map((item) => (
           <li key={item.href}>
-            <Link
-              href={item.href}
-              onClick={onClose}
-              className="roll-trigger group font-sans text-5xl leading-[1.1] tracking-[-0.02em]"
-            >
-              <RollText>{item.label}</RollText>
-              {"count" in item && item.count !== undefined && (
-                <NavCount count={item.count} />
-              )}
-            </Link>
+            {"soon" in item && item.soon ? (
+              <span
+                aria-disabled="true"
+                className="font-sans text-5xl leading-[1.1] tracking-[-0.02em] text-fg/40"
+              >
+                {item.label}
+                <sup className="ml-2 align-top font-sans text-[14px] tracking-normal">
+                  Soon
+                </sup>
+              </span>
+            ) : (
+              <Link
+                href={item.href}
+                onClick={onClose}
+                className="roll-trigger group font-sans text-5xl leading-[1.1] tracking-[-0.02em]"
+              >
+                <RollText>{item.label}</RollText>
+                {"count" in item && item.count !== undefined && (
+                  <NavCount count={item.count} />
+                )}
+              </Link>
+            )}
           </li>
         ))}
       </ul>

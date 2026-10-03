@@ -6,7 +6,11 @@
 .what-i-do {
   --what-i-do-bg: var(--blue);
   --what-i-do-fg: var(--brand-50);
-  --what-i-do-line: color-mix(in srgb, var(--what-i-do-fg) 35%, transparent);
+  /* The disciplines panel stays on the page's own white; only the wipe and the
+     accents carry the brand colour. */
+  --what-i-do-panel-bg: var(--bg);
+  --what-i-do-panel-fg: var(--fg);
+  --what-i-do-line: var(--what-i-do-panel-fg);
   --what-i-do-gutter: 20px;
 }
 
@@ -55,6 +59,7 @@
   font-size: 2em;
 }
 
+
 .what-i-do-intro__heading {
   margin: 0;
   font-family: var(--sans);
@@ -86,6 +91,28 @@
   color: var(--what-i-do-bg);
 }
 
+/* Off-white headline copy above the stroke; the SVG mask in the TSX reveals it
+   only where the blue has covered the page. */
+.what-i-do-intro__inverted {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.what-i-do-intro__inverted .what-i-do-intro__content {
+  width: 100%;
+  height: 100%;
+}
+
+.what-i-do-intro__inverted .what-i-do-intro__statement,
+.what-i-do-intro__inverted .what-i-do-intro__heading {
+  color: var(--what-i-do-fg);
+}
+
 /* Oversized so the round caps and the fattened stroke never leave a gap at
    the viewport edges. */
 .what-i-do-intro__stroke svg {
@@ -105,8 +132,8 @@
   /* Overlaps the intro by a pixel so sub-pixel rounding can't open a
      hairline at the seam. */
   margin-top: -1px;
-  background: var(--what-i-do-bg);
-  color: var(--what-i-do-fg);
+  background: var(--what-i-do-panel-bg);
+  color: var(--what-i-do-panel-fg);
 }
 
 .what-i-do-panel--pinned {
@@ -127,72 +154,154 @@ html[data-header-tucked] header:not(:has(:focus-visible)) {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-top: 1.5px solid var(--what-i-do-line);
+  border-top: 1px solid var(--what-i-do-line);
 }
 
 .what-i-do-panel__list {
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1.5px solid var(--what-i-do-line);
+  border-top: 1px solid var(--what-i-do-line);
 }
 
 .what-i-do-panel--pinned .what-i-do-panel__list {
   border-top: 0;
 }
 
+/* Rows and open panels follow the About chapters: a slim row on the 12-column
+   grid (mono index, title, small tag), and an open panel with a big numeral,
+   a heading with two-column copy, and chips. */
 .discipline__row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px var(--what-i-do-gutter);
-  /* Bottom rule only: it divides a row from its open panel, or from the
-     next row when the panel is closed — one line per break, never two. */
-  border-bottom: 1.5px solid var(--what-i-do-line);
+  column-gap: 24px;
+  height: 44px;
+  padding: 0 var(--what-i-do-gutter);
+  font-size: 15px;
+  line-height: 1;
+  /* Divides a row from its open panel, or from the next row when the panel
+     is closed: one line per break, never two. */
+  border-bottom: 1px solid var(--what-i-do-line);
 }
 
-/* Big and light against the heavier title, like the reference — the
-   contrast in weight is what makes the row read. */
 .discipline__index {
-  font-family: var(--sans);
-  font-weight: 400;
-  font-size: clamp(32px, 4.4vw, 76px);
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  font-family: var(--label);
+  font-size: 12px;
   white-space: nowrap;
 }
 
 .discipline__title {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(20px, 3vw, 52px);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discipline__tag {
   text-align: right;
-  text-transform: uppercase;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 768px) {
+  .discipline__row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .discipline__index {
+    grid-column: span 3;
+  }
+
+  .discipline__title {
+    grid-column: span 6;
+  }
+
+  .discipline__tag {
+    grid-column: span 3;
+  }
 }
 
 .discipline__body {
-  display: flex;
-  flex-direction: column;
   position: relative;
   /* The tablet accordion animates height; content must clip, not spill. */
   overflow: hidden;
 }
 
-.discipline__description {
+/* Mobile and tablet: a plain stack. Image first, then copy and chips. */
+.discipline__inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.discipline__content {
+  display: grid;
+  gap: 32px;
+  padding: 32px var(--what-i-do-gutter) 48px;
+}
+
+.discipline__heading {
   margin: 0;
-  max-width: 44ch;
-  padding: 24px var(--what-i-do-gutter) 40px;
   font-family: var(--sans);
-  font-size: clamp(17px, 1.45vw, 25px);
-  line-height: 1.35;
+  font-weight: 500;
+  font-size: clamp(2rem, 3.4vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.discipline__story {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.discipline__story p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.discipline__uses {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.discipline__uses-label {
+  font-family: var(--label);
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--fg-dim);
+}
+
+.discipline__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.discipline__chips li {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--label);
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.discipline__media-slot {
+  order: -1;
 }
 
 .discipline__media {
-  order: -1;
   aspect-ratio: 16 / 9;
   overflow: hidden;
 }
@@ -205,42 +314,121 @@ html[data-header-tucked] header:not(:has(:focus-visible)) {
   user-select: none;
 }
 
-@media (min-width: 992px) {
-  .discipline__row {
-    padding-block: 16px;
-  }
+/* Desktop-only, where there is room for it. */
+.discipline__numeral {
+  display: none;
+}
 
-  /* Static desktop panel (reduced motion). When pinned, JS sizes it to fill
-     the viewport instead. */
+@media (min-width: 768px) {
+  .discipline__story {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (min-width: 992px) {
+  /* Static desktop panel (reduced motion). When pinned, JS sizes the body to
+     fill the viewport and sets --discipline-open for the layout inside. */
   .discipline__body {
-    display: block;
     height: 70vh;
   }
 
-  /* Vertically centred, left-aligned in the column left of the image.
-     `translate`, not `transform`, so it can't collide with anything GSAP
-     writes. */
-  .discipline__description {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    z-index: 1;
-    width: 29%;
-    max-width: none;
-    padding: 0 var(--what-i-do-gutter);
-    translate: 0 -50%;
-    text-align: left;
-    text-wrap: pretty;
+  /* Laid out at the full open height, so a closing body clips it instead of
+     squashing it. Copy on top, the image slot filling what's left. */
+  .discipline__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    height: var(--discipline-open, 70vh);
+    padding: 48px var(--what-i-do-gutter) 0;
   }
 
-  /* left/width must match MEDIA_LEFT / MEDIA_WIDTH in what-i-do-section.tsx. */
+  .discipline__content {
+    position: relative;
+    z-index: 1;
+    padding: 0;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+
+  .discipline__text {
+    grid-column: 4 / span 6;
+  }
+
+  .discipline__uses {
+    grid-column: 10 / span 3;
+    align-items: flex-end;
+  }
+
+  .discipline__chips {
+    justify-content: flex-end;
+  }
+
+  /* Orange numeral with a hairline copy knocked off its corner, like the
+     About chapters. Fills the open height and runs off the left edge,
+     standing on the next row. */
+  .discipline__numeral {
+    display: block;
+    position: absolute;
+    left: -0.07em;
+    bottom: -0.035em;
+    z-index: 0;
+    /* A tight line box, so the digit stands on the bottom edge instead of
+       floating a line-height above it (and getting clipped by the next row). */
+    line-height: 0.8;
+    /* --rise (35 -> 0, scrubbed from the TSX) lifts the incoming numeral into
+       place; a custom property rather than a GSAP transform so nothing can
+       leave it stuck part-way. */
+    translate: 0 calc(var(--rise, 0) * 1%);
+    /* Set once on the panel from what-i-do-section.tsx, so every
+       numeral is the same size. */
+    font-size: var(--discipline-numeral-size, calc(70vh * 0.95));
+    pointer-events: none;
+  }
+
+  /* The 1 is a narrow glyph, so at the shared left edge its flag gets cut
+     and it reads far left of the wider digits. Nudge it in. */
+  .discipline__numeral[data-digit="1"] {
+    left: 0.12em;
+  }
+
+  .discipline__numeral-glyph {
+    position: relative;
+    display: inline-block;
+    font-family: var(--display);
+    font-weight: 500;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    color: var(--what-i-do-bg);
+  }
+
+  .discipline__numeral-ghost {
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--what-i-do-bg);
+    translate: 0.09em -0.06em;
+  }
+
+  /* The slot starts on the copy's left edge (column 4), sits right under it
+     and runs to the right edge of the screen and down to the next row. The
+     image fills it; the sweep animates its left/width inside the slot. */
+  .discipline__media-slot {
+    order: 0;
+    position: relative;
+    z-index: 2;
+    grid-column: 1;
+    margin: 24px calc(var(--what-i-do-gutter) * -1) 0 calc((100% - 11 * 24px) / 12 * 3 + 3 * 24px);
+  }
+
   .discipline__media {
     position: absolute;
     top: 0;
-    left: 29%;
-    z-index: 2;
-    width: 71%;
-    height: 100%;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     aspect-ratio: auto;
   }
 }
