@@ -314,6 +314,13 @@ html[data-header-tucked] header:not(:has(:focus-visible)) {
   user-select: none;
 }
 
+/* Images with their own padding are shown whole, on a background matching
+   theirs (set inline) so any spare room reads as part of the image. */
+
+.discipline__media[data-fit="contain"] img {
+  object-fit: contain;
+}
+
 /* Desktop-only, where there is room for it. */
 .discipline__numeral {
   display: none;

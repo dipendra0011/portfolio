@@ -12,6 +12,8 @@ type Discipline = {
   /** Tools and methods shown as chips. */
   uses: string[];
   image: string;
+  /** Image with its own padding: shown whole, on this background colour, instead of cropped to fill the slot. */
+  contain?: string;
 };
 
 // Placeholder imagery borrowed from the projects section until each discipline
@@ -25,7 +27,8 @@ const DISCIPLINES: Discipline[] = [
       "Research, flows and interfaces, so a product with a lot going on feels obvious to the person using it.",
     ],
     uses: ["Research", "User journeys", "Interfaces"],
-    image: "/projects/project-a.webp",
+    image: "/what-i-do/product-design-process.png",
+    contain: "rgb(242 255 226)",
   },
   {
     title: "Design system",
@@ -36,6 +39,7 @@ const DISCIPLINES: Discipline[] = [
     ],
     uses: ["Tokens", "Components", "Documentation"],
     image: "/projects/paubha/showcase.webp",
+    contain: "rgb(12 16 28)",
   },
   {
     title: "Graphics",
@@ -100,6 +104,17 @@ const BRACKET_OFFSET = 160; // xPercent
    the copy, see .discipline__media-slot in what-i-do-section.css). */
 const MEDIA_LEFT = "0%";
 const MEDIA_WIDTH = "100%";
+
+/* Accordion timeline units, matching the About chapters; each unit is
+   SCROLL_PER_UNIT viewports of scroll. The first discipline holds before
+   anything moves, each hand-off takes STEP_MOVE of its STEP (the rest is the
+   open discipline sitting still), and the last one holds before the pin
+   releases. */
+const HOLD_START = 0.3;
+const STEP = 1;
+const STEP_MOVE = 0.6;
+const HOLD_END = 0.5;
+const SCROLL_PER_UNIT = 0.9;
 
 /* Incoming numeral rises this far (of its own height) as its discipline opens. */
 const NUMERAL_RISE = 35;
@@ -272,11 +287,12 @@ export function WhatIDoSection() {
           gsap.set(content, { opacity: i === 0 ? 1 : 0 });
         });
 
+        const total = HOLD_START + (items.length - 1) * STEP + HOLD_END;
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: panel,
             start: "top top",
-            end: () => `+=${window.innerHeight * items.length}`,
+            end: () => `+=${window.innerHeight * total * SCROLL_PER_UNIT}`,
             scrub: true,
             pin: true,
             invalidateOnRefresh: true,
@@ -287,6 +303,7 @@ export function WhatIDoSection() {
 
         items.slice(0, -1).forEach((current, i) => {
           const next = items[i + 1];
+          const at = HOLD_START + i * STEP;
           // Explicit from/to (not .to) so a resize mid-scroll re-records clean
           // values instead of whatever half-open height is on screen.
           // immediateRender off: otherwise each later tween would snap its
@@ -294,45 +311,45 @@ export function WhatIDoSection() {
           tl.fromTo(
             current.body,
             { height: () => openHeights[i] },
-            { height: 0, duration: 1, ease: "none", immediateRender: false },
-            i
+            { height: 0, duration: STEP_MOVE, ease: "none", immediateRender: false },
+            at
           )
             .fromTo(
               next.body,
               { height: 0 },
-              { height: () => openHeights[i + 1], duration: 1, ease: "none", immediateRender: false },
-              i
+              { height: () => openHeights[i + 1], duration: STEP_MOVE, ease: "none", immediateRender: false },
+              at
             )
             // Outgoing image is swept off to the right while the next one
             // grows out from the same left edge.
-            .to(current.media, { left: "100%", width: "0%", duration: 1, ease: "none" }, i)
-            .to(next.media, { left: MEDIA_LEFT, width: MEDIA_WIDTH, duration: 1, ease: "none" }, i)
+            .to(current.media, { left: "100%", width: "0%", duration: STEP_MOVE, ease: "none" }, at)
+            .to(next.media, { left: MEDIA_LEFT, width: MEDIA_WIDTH, duration: STEP_MOVE, ease: "none" }, at)
             .fromTo(
               list,
               { y: () => listOffset(i) },
-              { y: () => listOffset(i + 1), duration: 1, ease: "none", immediateRender: false },
-              i
+              { y: () => listOffset(i + 1), duration: STEP_MOVE, ease: "none", immediateRender: false },
+              at
             )
             // Incoming numeral rises into place as its discipline opens, like
             // the About chapters.
             .fromTo(
               next.numeral,
               { "--rise": NUMERAL_RISE },
-              { "--rise": 0, duration: 0.6, ease: "power2.out", immediateRender: false },
-              i
+              { "--rise": 0, duration: STEP_MOVE, ease: "power2.out", immediateRender: false },
+              at
             )
             // The copy is clipped by its closing panel, so it leaves early
             // and the incoming copy arrives late.
-            .to(current.content, { opacity: 0, duration: 0.4, ease: "none" }, i)
+            .to(current.content, { opacity: 0, duration: STEP_MOVE * 0.4, ease: "none" }, at)
             .fromTo(
               next.content,
               { opacity: 0 },
-              { opacity: 1, duration: 0.4, ease: "none", immediateRender: false },
-              i + 0.6
+              { opacity: 1, duration: STEP_MOVE * 0.4, ease: "none", immediateRender: false },
+              at + STEP_MOVE * 0.6
             );
         });
-        // Hold on the last discipline for the final viewport of the pin.
-        tl.to({}, { duration: 1 });
+        // Pads the timeline out to its full length for the closing hold.
+        tl.set({}, {}, total);
 
         return () => {
           panel.classList.remove("what-i-do-panel--pinned");
@@ -352,11 +369,12 @@ export function WhatIDoSection() {
         };
         measure();
 
+        const total = HOLD_START + (items.length - 1) * STEP + HOLD_END;
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: panel,
             start: "top top",
-            end: () => `+=${window.innerHeight * (items.length - 1)}`,
+            end: () => `+=${window.innerHeight * total * SCROLL_PER_UNIT}`,
             scrub: true,
             pin: true,
             invalidateOnRefresh: true,
@@ -366,12 +384,14 @@ export function WhatIDoSection() {
         });
 
         items.slice(0, -1).forEach((current, i) => {
-          tl.to(current.body, { height: 0, duration: 1, ease: "none" }, i).to(
+          const at = HOLD_START + i * STEP;
+          tl.to(current.body, { height: 0, duration: STEP_MOVE, ease: "none" }, at).to(
             items[i + 1].body,
-            { height: () => heights[i + 1], duration: 1, ease: "none" },
-            i
+            { height: () => heights[i + 1], duration: STEP_MOVE, ease: "none" },
+            at
           );
         });
+        tl.set({}, {}, total);
 
         return () => tuckHeader(false);
       });
@@ -462,7 +482,8 @@ export function WhatIDoSection() {
                     </div>
 
                     <div className="discipline__media-slot">
-                      <div className="discipline__media">
+                      <div className="discipline__media" data-fit={discipline.contain ? "contain" : undefined}
+                        style={discipline.contain ? { background: discipline.contain } : undefined}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={discipline.image} alt="" loading="lazy" draggable={false} />
                       </div>
