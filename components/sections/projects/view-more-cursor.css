@@ -1,0 +1,45 @@
+/* The orange label circle that follows the cursor (view-more-cursor.tsx).
+   Hidden on touch; each user opens it on its own hover with
+   `.your-hover-target:hover .project-view__circle { transform: scale(1) }`. */
+.project-view {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Outer box is positioned by GSAP (x/y at the cursor); the inner circle
+     owns the open/close scale so the two transforms never fight. */
+  .project-view {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .project-view__circle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    margin: -56px 0 0 -56px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: var(--bg);
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transform: scale(0);
+    transition: transform 0.5s cubic-bezier(0.35, 0, 0, 1); /* the site's "lusion" curve */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-view__circle {
+    transition-duration: 0.01s;
+  }
+}

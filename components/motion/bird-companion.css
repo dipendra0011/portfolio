@@ -15,6 +15,10 @@
     height: 81px;
     pointer-events: none;
     will-change: transform;
+    /* Invisible until the script parks it off-screen and flies it in; without
+       this it flashes in the corner for the moment before hydration. The
+       script's inline opacity takes over from here. */
+    opacity: 0;
   }
 }
 
@@ -38,6 +42,23 @@
 /* Wings held out (the first frame is the glide pose). */
 .bird-companion.is-gliding .bird-companion__sprite {
   animation: none;
+}
+
+/* Resting on an edge: the footer's pecking bird, feet on the bottom line. */
+.bird-companion.is-resting .bird-companion__sprite {
+  background: url("/footer/bird.gif") center bottom / contain no-repeat;
+  animation: none;
+}
+
+/* On the Paint window: sitting up, watching (bird-upright.png, same framing
+   as the gif), and bobbing its head along while someone draws. */
+.bird-companion.is-watching .bird-companion__sprite {
+  background: url("/footer/bird-upright.png") center bottom / contain no-repeat;
+  animation: none;
+}
+
+.bird-companion.is-watching.is-pecking .bird-companion__sprite {
+  background-image: url("/footer/bird.gif");
 }
 
 @keyframes bird-companion-flap {

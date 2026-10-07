@@ -1,0 +1,162 @@
+/* ------------------------------------------------------------------
+   Graphics stage (graphics-desk.tsx): the launch post on a WebGL phone
+   (phone-scene.ts) at the centre, with hand-drawn Open Peeps around it: one
+   looking at it from each side and one sitting on the floor beside it. Sized
+   to the media SLOT (100cqw) like the motion lab, so the accordion's sweep
+   reveals it as a window; everything inside is in cqw.
+
+   People drift with the cursor by their own --depth (--px/--py, -1..1):
+   nearer figures travel further, which is most of the 3D feel. Base styles
+   are the finished scene; .stage--armed holds them off their marks until
+   .is-in.
+   ------------------------------------------------------------------ */
+
+.stage {
+  --stage-ease: cubic-bezier(0.35, 0, 0, 1); /* the site's "lusion" curve */
+  --ground: 5%; /* where the front figures and the phone stand, from the bottom */
+  --px: 0;
+  --py: 0;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100cqw;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+}
+
+.stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.stage__layer {
+  --depth: 1;
+  --lift: 0cqw;
+  position: absolute;
+  bottom: var(--ground);
+  translate: calc(var(--px) * var(--depth) * 1cqw) calc(var(--py) * var(--depth) * 0.5cqw + var(--lift));
+  transition: translate 0.9s var(--stage-ease);
+}
+
+/* A soft contact shadow where each figure meets the ground. */
+.stage__layer::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -0.7cqw;
+  height: 1.6cqw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(17 17 17 / 0.2), transparent);
+  pointer-events: none;
+}
+
+/* --- The phone (WebGL canvas, full stage height) -------------------------- */
+.stage-phone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 33%;
+  width: 46cqw;
+}
+
+.stage-phone__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Contact shadow on the ground under the phone. */
+.stage-phone__shadow {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: calc(var(--ground) - 1.4cqw);
+  height: 2.8cqw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(17 17 17 / 0.18), transparent);
+}
+
+/* No WebGL: the owner's own phone capture, slightly turned. */
+.stage-phone__fallback {
+  position: absolute;
+  left: 50%;
+  bottom: var(--ground);
+  height: 78%;
+  width: auto;
+  translate: -50% 0;
+  transform: perspective(110cqw) rotateY(-14deg);
+}
+
+/* --- People (desktop slot) ------------------------------------------------ */
+/* Front left, hand on hip, looking across at the phone. */
+.stage-peep-left {
+  --depth: 1.6;
+  left: 30%;
+  width: 11cqw;
+}
+
+/* Right, arms crossed, studying the post: mirrored so she faces it. */
+.stage-peep-right {
+  --depth: 1.2;
+  left: 69.5%;
+  width: 11cqw;
+}
+
+.stage-peep-right svg {
+  transform: scaleX(-1);
+}
+
+/* Front right, sitting on the floor. */
+.stage-sitter {
+  --depth: 1.9;
+  left: 82%;
+  width: 12cqw;
+}
+
+/* Small slot (phones): the phone, pointed at from the left, with someone
+   sitting beside it. */
+@container (max-width: 560px) {
+  .stage-peep-right {
+    display: none;
+  }
+
+  .stage-phone {
+    left: 28%;
+    width: 48cqw;
+  }
+
+  .stage-peep-left {
+    left: 14%;
+    width: 15cqw;
+  }
+
+  .stage-sitter {
+    left: 70%;
+    width: 20cqw;
+  }
+}
+
+/* --- Entrance ------------------------------------------------------------ */
+/* Each figure rises into place, one after another, as the phone swings in. */
+.stage--armed .stage__layer {
+  --lift: 3cqw;
+  opacity: 0;
+  transition:
+    translate 1.1s var(--stage-ease) calc(0.3s + var(--i, 0) * 0.14s),
+    opacity 0.6s ease-out calc(0.3s + var(--i, 0) * 0.14s);
+}
+
+.stage--armed.is-in .stage__layer {
+  --lift: 0cqw;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage__layer {
+    transition: none;
+  }
+}

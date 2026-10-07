@@ -445,54 +445,15 @@
   }
 }
 
-/* ── "View more" cursor circle (ViewMoreCursor, linked cards only) ─────── */
-.project-view {
-  display: none;
-}
-
+/* ── "View more" cursor circle (ViewMoreCursor, linked cards only) ───────
+   The circle itself lives in view-more-cursor.css; here, the card hides the
+   real pointer and opens the circle on hover. */
 @media (hover: hover) and (pointer: fine) {
   .project-card__link .project-card__media {
     cursor: none;
   }
 
-  /* Outer box is positioned by GSAP (x/y at the cursor); the inner circle
-     owns the open/close scale so the two transforms never fight. */
-  .project-view {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-  }
-
-  .project-view__circle {
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: grid;
-    place-items: center;
-    width: 112px;
-    height: 112px;
-    margin: -56px 0 0 -56px;
-    border-radius: 50%;
-    background: var(--blue);
-    color: var(--bg);
-    font-family: var(--sans);
-    font-weight: 500;
-    font-size: 15px;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    transform: scale(0);
-    transition: transform 0.5s var(--ease-lusion);
-  }
-
   .project-card__media:hover .project-view__circle {
     transform: scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .project-view__circle {
-    transition-duration: 0.01s;
   }
 }

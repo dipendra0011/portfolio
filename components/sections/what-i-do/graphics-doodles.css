@@ -1,0 +1,184 @@
+/* ------------------------------------------------------------------
+   Graphics doodles (graphics-doodles.tsx): a designer's canvas, from the
+   owner's sketch. Sized to the media SLOT (100cqw) like the motion lab;
+   positions in %, sizes in cqw so it scales with the slot.
+
+   Layers per doodle, so transforms never fight:
+     .doodle          placement, and the pop-in entrance
+     .doodle__motion  its own idle motion
+     img              the hover wiggle
+   Motion is small and slow: alive at a glance, never busy.
+   ------------------------------------------------------------------ */
+
+.doodles {
+  --select: #9747ff; /* a design tool's selection purple */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100cqw;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+}
+
+.doodle {
+  position: absolute;
+  display: block;
+}
+
+.doodle__motion {
+  display: block;
+}
+
+.doodle img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Placement (desktop slot) -------------------------------------------- */
+/* Three across the top of the slot, from the owner's markup: the selection
+   high in the middle-left, the portrait below and right of it in the middle,
+   the window up on the right. Kept in the upper part so there's always room
+   under them. */
+.doodle--select { left: 24%; top: 4%; width: 10cqw; }
+.doodle--portrait { left: 20%; top: 24%; width: 23cqw; }
+.doodle--ui-window { left: 49.5%; top: 8%; width: 27cqw; }
+
+/* Small slot (phones): the same three, closer together. */
+@container (max-width: 560px) {
+  .doodle--select { left: 6%; top: 12%; width: 15cqw; }
+  .doodle--ui-window { right: 6%; bottom: 8%; width: 46cqw; }
+  .doodle--portrait { left: 3%; bottom: 6%; width: 36cqw; }
+}
+
+/* --- Selected in a design tool ------------------------------------------- */
+/* The frame "resizes" slowly while the badge counts with it. The count is a
+   registered integer property, so it interpolates as a number. */
+@property --select-size {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 1040;
+}
+
+.select {
+  --select-size: 1040;
+  position: relative;
+  display: block;
+  rotate: -8deg;
+  transform-origin: 0 100%;
+  animation: select-resize 7s ease-in-out infinite;
+}
+
+.select__art {
+  padding: 8%;
+}
+
+.select__frame {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--select);
+}
+
+.select__handle {
+  position: absolute;
+  width: 0.9cqw;
+  height: 0.9cqw;
+  min-width: 6px;
+  min-height: 6px;
+  border: 1.5px solid var(--select);
+  background: #fff;
+  translate: -50% -50%;
+}
+
+.select__handle--tl { left: 0; top: 0; }
+.select__handle--tr { left: 100%; top: 0; }
+.select__handle--bl { left: 0; top: 100%; }
+.select__handle--br { left: 100%; top: 100%; }
+
+/* "1040 × 1040", drawn from the counting property. */
+.select__size {
+  position: absolute;
+  left: -4%;
+  top: calc(100% + 1cqw);
+  padding: 0.35cqw 0.7cqw;
+  border-radius: 0.4cqw;
+  background: var(--select);
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: max(9px, 1.2cqw);
+  line-height: 1;
+  white-space: nowrap;
+  counter-reset: size var(--select-size);
+}
+
+.select__size::before {
+  content: counter(size) " × " counter(size);
+}
+
+/* Grow from the bottom-left corner, as if the top-right handle is dragged. */
+@keyframes select-resize {
+  0%, 18%, 100% {
+    scale: 1;
+    --select-size: 1040;
+  }
+  50%, 64% {
+    scale: 1.14;
+    --select-size: 1180;
+  }
+}
+
+/* --- Idle motions --------------------------------------------------------- */
+.doodle__motion--tilt {
+  transform-origin: 50% 80%;
+  animation: doodle-tilt 7s ease-in-out infinite alternate;
+}
+
+.doodle__motion--bob {
+  transform-origin: 40% 100%;
+  animation: doodle-bob 5s ease-in-out infinite alternate;
+}
+
+@keyframes doodle-tilt {
+  from { transform: rotate(-1.5deg); }
+  to { transform: rotate(1.5deg) translateY(-0.5cqw); }
+}
+
+@keyframes doodle-bob {
+  from { transform: translateY(0) rotate(0deg); }
+  to { transform: translateY(-0.6cqw) rotate(-1.5deg); }
+}
+
+/* --- Hover: a playful wiggle (fine pointers) -------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  .doodle:hover img {
+    transform: scale(1.05) rotate(-3deg);
+  }
+}
+
+/* --- Entrance: pop in one by one, once on screen --------------------------- */
+.doodles--armed .doodle {
+  opacity: 0;
+  transform: scale(0.6) rotate(-8deg);
+  transition:
+    opacity 0.5s ease-out calc(var(--i, 0) * 0.12s),
+    transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--i, 0) * 0.12s);
+}
+
+.doodles--armed.is-in .doodle {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doodle__motion,
+  .select {
+    animation: none;
+  }
+
+  .doodle img {
+    transition: none;
+  }
+}

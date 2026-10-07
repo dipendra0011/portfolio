@@ -1,0 +1,489 @@
+/* ------------------------------------------------------------------
+   Paint panel (paint-panel.tsx): a Windows 98 style Paint window to draw
+   in. Everything is scoped under .paint, so the retro buttons and bevels
+   never reach the rest of the site. Sized to the media SLOT (100cqw) like
+   the other visuals, so the accordion's sweep reveals it as a window.
+   ------------------------------------------------------------------ */
+
+.paint-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100cqw;
+  height: 100%;
+  display: grid;
+}
+
+.paint {
+  --w98-face: #c0c0c0;
+  --w98-light: #ffffff;
+  --w98-soft: #dfdfdf;
+  --w98-shadow: #808080;
+  --w98-dark: #0a0a0a;
+  --w98-raised: inset -1px -1px var(--w98-dark), inset 1px 1px var(--w98-light), inset -2px -2px var(--w98-shadow), inset 2px 2px var(--w98-soft);
+  --w98-sunken: inset -1px -1px var(--w98-light), inset 1px 1px var(--w98-shadow), inset -2px -2px var(--w98-soft), inset 2px 2px var(--w98-dark);
+
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  /* Fills the whole media slot, edge to edge. */
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
+  color: #000;
+  font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+  font-size: max(11px, 0.85cqw);
+  line-height: 1.2;
+  user-select: none;
+}
+
+.paint button {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  border: 0;
+  background: none;
+  cursor: default;
+}
+
+/* --- Title bar ------------------------------------------------------------ */
+.paint__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 3px 3px 5px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  font-weight: 700;
+}
+
+.paint__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.paint__app-icon {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  color: #ffd84d;
+}
+
+.paint__app-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.paint__window-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.paint__window-buttons > * {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 14px;
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
+  color: #000;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.paint__window-buttons > :last-child {
+  margin-left: 2px;
+}
+
+/* --- Menu bar --------------------------------------------------------------- */
+.paint__menubar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 0;
+}
+
+.paint__menu {
+  position: relative;
+}
+
+.paint__menu > button,
+.paint__menu-static {
+  display: block;
+  padding: 2px 7px;
+}
+
+.paint__menu > button:hover,
+.paint__menu > button[aria-expanded="true"] {
+  background: #000080;
+  color: #fff;
+}
+
+.paint__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 2px;
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
+}
+
+.paint__dropdown button {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 3px 18px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.paint__dropdown button:hover,
+.paint__dropdown button:focus-visible {
+  background: #000080;
+  color: #fff;
+  outline: none;
+}
+
+.paint__shortcut {
+  opacity: 0.7;
+}
+
+/* --- Body: toolbox + canvas ------------------------------------------------- */
+.paint__body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 4px;
+  min-height: 0;
+}
+
+.paint__side {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.paint__toolbox {
+  display: grid;
+  grid-template-columns: repeat(2, max(24px, 2.2cqw));
+  grid-auto-rows: max(24px, 2.2cqw);
+  align-content: start;
+  gap: 1px;
+  padding: 2px;
+}
+
+.paint__tool {
+  display: grid;
+  place-items: center;
+  background: var(--w98-face) !important;
+  box-shadow: var(--w98-raised);
+}
+
+.paint__tool svg {
+  width: 62%;
+  height: 62%;
+}
+
+.paint__tool[aria-pressed="true"] {
+  box-shadow: var(--w98-sunken);
+  background:
+    repeating-conic-gradient(var(--w98-face) 0 25%, var(--w98-light) 0 50%) 0 0 / 2px 2px !important;
+}
+
+.paint__tool:focus-visible,
+.paint__swatch:focus-visible,
+.paint__menu > button:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+.paint__canvas-well {
+  min-height: 0;
+  overflow: hidden;
+  padding: 2px;
+  background: var(--w98-shadow);
+  box-shadow: var(--w98-sunken);
+}
+
+.paint__canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Absolutely placed, so the canvas's own pixel size (2x on retina) never
+   props its row open and pushes the palette out of the window. */
+.paint__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.paint__canvas--fill {
+  cursor: cell;
+}
+
+/* The invitation, styled like the "graphic design is my passion" meme it
+   nods to. It fades out the moment there's something on the canvas. */
+.paint__prompt {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 8%;
+  text-align: center;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 700;
+  font-size: max(15px, 2.4cqw);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: #0000ff;
+  opacity: 0.85;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+
+.paint__prompt.is-gone {
+  opacity: 0;
+}
+
+/* Size picker, the classic sunken box of lines under the tools. */
+.paint__sizes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 2px;
+  padding: 4px;
+  box-shadow: var(--w98-sunken);
+}
+
+.paint__size {
+  display: grid;
+  place-items: center;
+  height: 12px;
+  padding: 0 4px !important;
+}
+
+.paint__size span {
+  display: block;
+  width: 100%;
+  background: #000;
+}
+
+.paint__size[aria-checked="true"] {
+  background: #000080 !important;
+}
+
+.paint__size[aria-checked="true"] span {
+  background: #fff;
+}
+
+/* --- Palette ------------------------------------------------------------------ */
+.paint__palette {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px 2px;
+}
+
+.paint__current {
+  display: grid;
+  place-items: center;
+  width: max(28px, 2.6cqw);
+  height: max(28px, 2.6cqw);
+  box-shadow: var(--w98-sunken);
+  background: var(--w98-face);
+}
+
+.paint__current span {
+  width: 55%;
+  height: 55%;
+  box-shadow: var(--w98-raised);
+}
+
+.paint__swatches {
+  display: grid;
+  grid-template-columns: repeat(14, max(13px, 1.3cqw));
+  grid-auto-rows: max(13px, 1.3cqw);
+  gap: 1px;
+}
+
+.paint__swatch {
+  box-shadow: var(--w98-sunken);
+}
+
+.paint__swatch[aria-checked="true"] {
+  outline: 1px solid #000;
+  outline-offset: 1px;
+}
+
+/* The wall, at the menu bar's far end: a link to browse it and a raised
+   button that sends the drawing there. */
+.paint__wall {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding-right: 2px;
+}
+
+.paint__wall-link {
+  padding: 2px 6px;
+  color: #0000ee;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.paint__wall-link:hover {
+  background: #000080;
+  color: #fff;
+}
+
+.paint__wall-link:focus-visible {
+  outline: 1px dotted #000;
+}
+
+.paint__pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px !important;
+  font-weight: 700 !important;
+  background: var(--w98-face) !important;
+  box-shadow: var(--w98-raised);
+  white-space: nowrap;
+}
+
+.paint__pin svg {
+  width: 14px;
+  height: 14px;
+}
+
+.paint__pin:active:not(:disabled) {
+  box-shadow: var(--w98-sunken);
+}
+
+.paint__pin:disabled {
+  color: var(--w98-shadow);
+}
+
+.paint__pin:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+/* --- Status bar ----------------------------------------------------------------- */
+.paint__statusbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+  padding: 2px 6px;
+  box-shadow: var(--w98-sunken);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.paint__coords {
+  min-width: 9ch;
+  text-align: right;
+}
+
+/* --- Focus and full screen ---------------------------------------------------- */
+.paint:focus {
+  outline: none;
+}
+
+/* Full screen: the window floats over a dimmed page, above the header. */
+.paint-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 3vh 3vw;
+  /* The window's own sizes read from this, like the slot's. */
+  container-type: inline-size;
+}
+
+.paint-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(17 17 17 / 0.45);
+}
+
+.paint--max {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--w98-raised), 0 24px 60px -20px rgb(0 0 0 / 0.5);
+}
+
+/* Left in the slot while the window is full screen. */
+.paint-stage__away {
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  justify-items: center;
+  border: 1px dashed var(--line);
+  color: var(--fg-dim);
+  font-size: 15px;
+}
+
+.paint-stage__away button {
+  padding: 8px 14px;
+  border: 1px solid var(--fg);
+  border-radius: 4px;
+  color: var(--fg);
+  font: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+/* Small slot (phones): the window fills it, the static menus and the second
+   palette row step aside. */
+@container (max-width: 560px) {
+  .paint {
+    font-size: 10px;
+  }
+
+  .paint__menu-static,
+  .paint__coords,
+  .paint__swatch:nth-child(n + 15) {
+    display: none;
+  }
+
+  .paint__toolbox {
+    grid-template-columns: repeat(2, max(22px, 2.2cqw));
+  }
+
+  .paint__sizes {
+    display: none;
+  }
+
+  .paint__prompt {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paint__prompt {
+    transition: none;
+  }
+}

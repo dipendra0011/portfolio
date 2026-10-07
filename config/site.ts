@@ -18,6 +18,7 @@ export const siteConfig = {
     { label: "Work", href: "/work", count: PROJECTS.length },
     // { label: "Playground", href: "/playground", soon: true }, // hidden for now
     { label: "About", href: "/about" },
+    { label: "Wall", href: "/wall" },
   ] satisfies NavItem[],
   contact: { label: "Get in touch", href: "/contact" },
 } as const;

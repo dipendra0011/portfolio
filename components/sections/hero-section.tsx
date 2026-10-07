@@ -146,7 +146,7 @@ export function HeroSection() {
   return (
     // The hero owns the whole first screen: headline centred in it, intro on
     // its floor.
-    <section className="hero-edit" ref={rootRef}>
+    <section className="hero-edit" id="hero" ref={rootRef}>
       <div className="flex min-h-svh flex-col px-5 pt-28 pb-8 font-sans text-fg md:px-9 md:pt-32 md:pb-9">
         <h1 className="sr-only">A headline has one job. So does every screen.</h1>
 

@@ -26,6 +26,7 @@ const CONTENTS = [
   { id: "intro", label: "A brief intro" },
   { id: "story", label: "How did I get here?" },
   { id: "experience", label: "When and where" },
+  { id: "tools", label: "Tools I use" },
   { id: "kind-words", label: "What others say" },
   { id: "off-the-clock", label: "Off the clock" },
 ];
@@ -171,6 +172,12 @@ const OFF_THE_CLOCK = [
   },
 ];
 
+const TOOLS = [
+  { group: "Design", items: ["Figma", "FigJam", "Illustrator", "Photoshop"] },
+  { group: "AI", items: ["Claude", "Claude Code", "ChatGPT", "Gemini", "Cursor"] },
+  { group: "Build", items: ["VS Code", "GitHub"] },
+];
+
 const label = "font-label text-[12px] uppercase leading-none tracking-[0.02em] text-fg-dim";
 const statement = "font-medium leading-[0.95] tracking-[-0.045em]";
 
@@ -190,7 +197,7 @@ export default function AboutPage() {
                   href={PROFILE_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group float-left mr-4 mb-2 block w-[88px] md:w-[104px]"
+                  className="about-portrait group float-left mr-4 mb-2 block w-[88px] md:w-[104px]"
                   aria-label="Dipendra Shrestha — open on YouTube"
                 >
                   {/* Source is a tall full-body portrait — cropped to the top
@@ -200,7 +207,7 @@ export default function AboutPage() {
                     alt="Dipendra Shrestha"
                     width={592}
                     height={592}
-                    className="block aspect-square size-full rounded-[4px] bg-surface object-cover object-top grayscale transition-[filter] duration-500 group-hover:grayscale-0"
+                    className="block aspect-square size-full rounded-[4px] bg-surface object-cover object-top"
                   />
                 </a>
                 <p>
@@ -227,7 +234,7 @@ export default function AboutPage() {
             </div>
 
             <p
-              className={`about-manifesto mt-[22svh] text-[clamp(2.25rem,5.2vw,5.5rem)] ${statement} md:indent-[25%]`}
+              className={`about-manifesto about-lead mt-[22svh] text-[clamp(2.25rem,5.2vw,5.5rem)] ${statement} md:indent-[25%]`}
             >
               I&apos;m a product designer who came the long way round: through art class, a
               graphic design course, ad accounts, copy decks and a lot of broken code. That route
@@ -297,14 +304,52 @@ export default function AboutPage() {
             <AboutExperience roles={ROLES} />
           </section>
 
+          {/* --- Tools --- */}
+          <section
+            id="tools"
+            aria-labelledby="tools-heading"
+            className="grid gap-10 px-5 pt-10 pb-24 md:grid-cols-12 md:gap-x-6 md:px-9 md:pt-14 md:pb-36"
+          >
+            <div className="flex flex-col gap-6 md:col-span-5">
+              <span className={label}>[04] Tools I use</span>
+              <h2
+                id="tools-heading"
+                className={`about-reveal text-[clamp(2.25rem,4vw,3.75rem)] ${statement}`}
+              >
+                Tools
+                <br />
+                <span className="text-fg-dim">I work with.</span>
+              </h2>
+            </div>
+            <div className="flex flex-col gap-8 md:col-span-7">
+              {TOOLS.map(({ group, items }) => (
+                <div key={group} className="about-reveal flex flex-col gap-3">
+                  <h3 className="text-[15px] leading-none text-fg-dim">{group}</h3>
+                  {/* Same tags as the role highlights and the home page's
+                      "What I use": square-cornered, outlined, mono caps. */}
+                  <ul className="flex flex-wrap gap-2">
+                    {items.map((tool) => (
+                      <li
+                        key={tool}
+                        className="rounded-[4px] border border-line px-3 py-2 font-label text-[13px] uppercase leading-none tracking-[0.02em]"
+                      >
+                        {tool}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* --- Kind words --- */}
           <section
             id="kind-words"
             aria-labelledby="kind-words-heading"
-            className="grid gap-10 px-5 pt-10 pb-24 md:grid-cols-12 md:gap-x-6 md:px-9 md:pt-14 md:pb-36"
+            className="grid gap-10 border-t border-fg px-5 pt-10 pb-24 md:grid-cols-12 md:gap-x-6 md:px-9 md:pt-14 md:pb-36"
           >
             <div className="flex flex-col gap-4 md:col-span-3">
-              <span className={label}>[04] Kind words</span>
+              <span className={label}>[05] Kind words</span>
               <h2 id="kind-words-heading" className="max-w-[18ch] text-[15px] leading-[1.35]">
                 What colleagues, teammates and clients say
               </h2>
@@ -318,7 +363,7 @@ export default function AboutPage() {
             aria-labelledby="off-the-clock-heading"
             className="grid gap-10 border-t border-fg px-5 pt-10 pb-24 md:grid-cols-12 md:gap-x-6 md:px-9 md:pt-14 md:pb-36"
           >
-            <span className={`${label} md:col-span-3`}>[05] Off the clock</span>
+            <span className={`${label} md:col-span-3`}>[06] Off the clock</span>
             <div className="md:col-span-9">
               <h2
                 id="off-the-clock-heading"

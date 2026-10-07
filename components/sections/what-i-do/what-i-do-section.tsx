@@ -1,7 +1,15 @@
 "use client";
 
 import { useRef } from "react";
+import dynamic from "next/dynamic";
 import { gsap, useGSAP, MOTION_OK, SplitText } from "@/lib/gsap";
+// The 3D phone stage, shelved for now: re-enable with visual: "graphics-desk".
+// import { GraphicsDesk } from "./graphics-desk";
+// import { GraphicsDoodles } from "./graphics-doodles"; // shelved, see Graphics below
+// Loaded on demand: the Paint panel's code (canvas tools, brush, icons) only
+// downloads when this section renders it, not with the page.
+const PaintPanel = dynamic(() => import("./paint-panel").then((m) => m.PaintPanel), { ssr: false });
+import { MotionLab } from "./motion-lab";
 import "./what-i-do-section.css";
 
 type Discipline = {
@@ -11,7 +19,10 @@ type Discipline = {
   story: string[];
   /** Tools and methods shown as chips. */
   uses: string[];
-  image: string;
+  /** Still image for the media slot. */
+  image?: string;
+  /** A live, coded visual instead of an image. */
+  visual?: "motion-lab" | "paint"; // shelved: | "graphics-doodles" | "graphics-desk"
   /** Image with its own padding: shown whole, on this background colour, instead of cropped to fill the slot. */
   contain?: string;
 };
@@ -49,7 +60,11 @@ const DISCIPLINES: Discipline[] = [
       "Brand visuals, illustration and campaign assets, made to stop the scroll and still hold up in print.",
     ],
     uses: ["Brand visuals", "Illustration", "Campaign assets"],
-    image: "/projects/project-c.webp",
+    // A little Paint window visitors can draw in.
+    visual: "paint",
+    // Shelved, swap one in to bring it back:
+    // visual: "graphics-doodles", // hand-drawn doodles, each with its own small motion
+    // visual: "graphics-desk", // the 3D phone stage
   },
   {
     title: "Motion and frontend",
@@ -59,7 +74,8 @@ const DISCIPLINES: Discipline[] = [
       "So I use GSAP, WebGL and React where motion earns its place, and hand engineers something they can ship.",
     ],
     uses: ["GSAP", "WebGL", "React"],
-    image: "/projects/gallery.webp",
+    // The visual is the skill: a board of live CSS motion demos.
+    visual: "motion-lab",
   },
 ];
 
@@ -484,8 +500,16 @@ export function WhatIDoSection() {
                     <div className="discipline__media-slot">
                       <div className="discipline__media" data-fit={discipline.contain ? "contain" : undefined}
                         style={discipline.contain ? { background: discipline.contain } : undefined}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={discipline.image} alt="" loading="lazy" draggable={false} />
+                        {discipline.visual === "motion-lab" ? (
+                          <MotionLab />
+                        ) : discipline.visual === "paint" ? (
+                          <PaintPanel />
+                        ) : /* Shelved Graphics visuals:
+                          discipline.visual === "graphics-doodles" ? <GraphicsDoodles /> :
+                          discipline.visual === "graphics-desk" ? <GraphicsDesk /> : */ (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={discipline.image} alt="" loading="lazy" draggable={false} />
+                        )}
                       </div>
                     </div>
                   </div>

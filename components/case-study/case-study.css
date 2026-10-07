@@ -76,6 +76,51 @@ html:has(.cs) {
   color: var(--fg);
 }
 
+/* "Visit site": an underlined text link with an arrow pointing out of the
+   page. On a fine pointer the project cards' orange circle stands in for the
+   cursor while hovering it (view-more-cursor.tsx). */
+.cs-visit {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(28px, 3vw, 44px);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  transition: color 0.24s var(--ease-nav);
+}
+
+.cs-visit__text {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+/* Points up and right: out of the page. */
+.cs-visit__arrow {
+  width: 1em;
+  height: 1em;
+  transform: rotate(-45deg);
+}
+
+.cs-visit:hover,
+.cs-visit:focus-visible {
+  color: var(--blue);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cs-visit {
+    cursor: none;
+  }
+
+  .cs-visit:hover .project-view__circle {
+    transform: scale(1);
+  }
+}
+
 .cs-meta {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

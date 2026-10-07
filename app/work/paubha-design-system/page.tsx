@@ -5,6 +5,7 @@ import { SmoothScroll } from "@/components/layout/smooth-scroll";
 import { CaseStudyReveal } from "@/components/case-study/case-study-reveal";
 import { CaseStudyAnchors } from "@/components/case-study/case-study-anchors";
 import { EnlargeImage } from "@/components/case-study/enlarge-image";
+import { ViewMoreCursor } from "@/components/sections/projects/view-more-cursor";
 import { RollText } from "@/components/motion/roll-text";
 import { ArrowRight } from "@/components/sections/projects/arrow-right";
 import "@/components/case-study/case-study.css";
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
 /* Copy reflects what actually shipped. Remaining TODOs:
    - Timeline: confirm the months.
    - Figure captions: make sure each caption matches its image. */
+
+const LIVE_SITE = { href: "https://ui.paubha.tech/" };
 
 const META = [
   { label: "Role", value: "Designer & engineer" },
@@ -139,6 +142,20 @@ export default function PaubhaCaseStudyPage() {
             <h1 className="cs-title">
               Paubha<span className="cs-title__dim">: one system, from Figma to production.</span>
             </h1>
+
+            {/* Where to see it for real. Joins the intro's staggered entrance;
+                on hover the project cards' orange cursor circle takes over. */}
+            <a
+              href={LIVE_SITE.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cs-visit cs-intro--rest"
+            >
+              <span className="cs-visit__text">Visit site</span>
+              <ArrowRight strokeWidth={1.5} className="cs-visit__arrow" />
+              <span className="sr-only"> (opens in a new tab)</span>
+              <ViewMoreCursor label="Open site" />
+            </a>
 
             <dl className="cs-meta cs-intro--rest">
               {META.map((item) => (

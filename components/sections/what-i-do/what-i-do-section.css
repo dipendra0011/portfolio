@@ -299,14 +299,19 @@ html[data-header-tucked] header:not(:has(:focus-visible)) {
 
 .discipline__media-slot {
   order: -1;
+  /* Lets a live visual (motion-lab.css) size itself to the slot, not to the
+     media box the accordion sweeps. */
+  container-type: inline-size;
 }
 
 .discipline__media {
+  position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
-.discipline__media img {
+/* Direct child only: live visuals (graphics-desk) have images of their own. */
+.discipline__media > img {
   display: block;
   width: 100%;
   height: 100%;
@@ -317,7 +322,7 @@ html[data-header-tucked] header:not(:has(:focus-visible)) {
 /* Images with their own padding are shown whole, on a background matching
    theirs (set inline) so any spare room reads as part of the image. */
 
-.discipline__media[data-fit="contain"] img {
+.discipline__media[data-fit="contain"] > img {
   object-fit: contain;
 }
 

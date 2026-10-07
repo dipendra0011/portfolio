@@ -17,6 +17,15 @@ import "./bird-companion.css";
  * makes it fly along and swoop to the next section. While perched it leans a
  * little toward the cursor, and shies away if the cursor comes close, so it
  * never sits under the pointer. It ignores pointer events entirely.
+ *
+ * Left alone long enough it lands somewhere to rest: on the top edge of an
+ * image, card or outlined box that's on screen and clear of text, where it
+ * pecks away (the footer's bird.gif) for PECK_FOR seconds, then takes off and
+ * flies about again. Scrolling or reaching for it also sends it off.
+ *
+ * "watch" perches beat all others: the Graphics Paint window offers its title
+ * bar while it's on screen, and the bird sits up there watching the cursor,
+ * bobbing its head along (pecking) whenever someone draws.
  */
 
 const READING_LINE = 0.45; // fraction of the viewport height
@@ -28,6 +37,12 @@ const ROAM_AFTER = 7; // s without scrolling before it gets restless
 const ROAM_SPEED = 0.45; // fraction of MAX_SPEED while wandering
 const ROAM_LEG = [2.5, 5]; // s spent heading for each wander spot
 const ROAM_REST = 0.3; // chance a leg is a rest back on the perch
+const REST_AFTER = 10; // s without scrolling before it lands somewhere to rest
+const REST_RETRY = 2; // s between searches when nowhere good is on screen
+const REST_INSET = 16; // px kept from a resting edge's corners
+const REST_FOOT = 3; // px its feet sink onto the edge it stands on
+const PECK_FOR = 10; // s it pecks away on its edge before taking off again
+const REST_MEDIA = new Set(["IMG", "VIDEO", "CANVAS", "PICTURE"]);
 const LEAN_MAX = 10; // px toward the cursor while perched
 const SHY_RADIUS = 110; // px; inside this the bird backs off from the cursor
 const SHY_PUSH = 46; // px at the closest distance
@@ -43,6 +58,11 @@ const LANDED_DISTANCE = 14; // px from home that counts as landed
 const EDGE = 16; // px kept from the viewport edges
 const HEADER_CLEARANCE = 64; // px kept clear under the fixed header
 const RELEASE_EVENT = "bird:release";
+/* Matches PAINT_DRAWING_EVENT in paint-panel.tsx (kept as a string so the bird
+   doesn't import the paint panel). */
+const PAINT_DRAWING_EVENT = "paint:drawing";
+const WATCH_AT = 0.7; // how far along a watch perch it sits: the gap between the copy and the tool chips above
+const PECK_LINGER = 0.6; // s it keeps bobbing after the pen lifts
 export const BIRD_RELEASE_EVENT = RELEASE_EVENT;
 
 type Perch = { el: HTMLElement; mode: string };
@@ -105,6 +125,62 @@ function clearSpot(x: number, y: number, w: number, h: number, boxes: Box[]) {
   return { x, y };
 }
 
+/* Things it can stand on: media, anything opted in with data-bird-rest, and
+   boxes with a visible top border or background image (cards, outlines).
+   Rebuilt at most once a second, like the text holders. */
+let restables: HTMLElement[] = [];
+let restablesAt = -Infinity;
+
+function restableElements() {
+  const now = performance.now();
+  if (now - restablesAt < 1000) return restables;
+  restablesAt = now;
+  restables = [];
+  for (const el of document.body.querySelectorAll<HTMLElement>("*")) {
+    if (el.closest("header, .bird-companion, [data-bird-perch], script, style")) continue;
+    if (REST_MEDIA.has(el.tagName) || el.hasAttribute("data-bird-rest")) {
+      restables.push(el);
+      continue;
+    }
+    const cs = getComputedStyle(el);
+    const border = parseFloat(cs.borderTopWidth) >= 1 && cs.borderTopStyle !== "none" && !cs.borderTopColor.endsWith(", 0)");
+    if (border || cs.backgroundImage !== "none") restables.push(el);
+  }
+  return restables;
+}
+
+type Rest = { el: HTMLElement; dx: number };
+
+/* The nearest top edge on screen it can stand on without covering text or
+   ducking under something else. */
+function findRest(cx: number, cy: number, w: number, h: number): Rest | null {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const boxes = visibleTextRects(vh);
+  let best: Rest | null = null;
+  let bestDist = Infinity;
+  for (const el of restableElements()) {
+    const r = el.getBoundingClientRect();
+    if (r.width < w * 1.6 || r.height < h * 0.6) continue;
+    const y = r.top - h + REST_FOOT;
+    if (y < EDGE + HEADER_CLEARANCE || y > vh - h - EDGE) continue;
+    for (const dx of [r.width - w - REST_INSET, REST_INSET, (r.width - w) / 2]) {
+      const x = r.left + dx;
+      if (x < EDGE || x > vw - w - EDGE) continue;
+      if (overlaps(x, y, w, h, boxes)) continue;
+      // The edge must actually be visible there, not under an overlay.
+      const hit = document.elementFromPoint(x + w / 2, r.top + 2);
+      if (!hit || !el.contains(hit)) continue;
+      const d = Math.hypot(x + w / 2 - cx, y + h / 2 - cy);
+      if (d < bestDist) {
+        bestDist = d;
+        best = { el, dx };
+      }
+    }
+  }
+  return best;
+}
+
 function perchTarget({ el, mode }: Perch, w: number, h: number) {
   if (mode === "end") {
     const range = document.createRange();
@@ -115,6 +191,8 @@ function perchTarget({ el, mode }: Perch, w: number, h: number) {
     return { x: last.right + TEXT_PADDING + 8, y: last.top + (last.height - h) / 2 };
   }
   const r = el.getBoundingClientRect();
+  // Standing on top of it, about two-thirds along.
+  if (mode === "watch") return { x: r.left + r.width * WATCH_AT - w / 2, y: r.top - h + REST_FOOT };
   if (mode === "home") return { x: r.left + r.width / 2 - w / 2, y: r.top + r.height / 2 - h / 2 };
   return { x: r.left + (r.width - w) / 2, y: r.bottom - h };
 }
@@ -151,6 +229,11 @@ export function BirdCompanion() {
       let lastScroll = window.scrollY;
       let stillSince = 0;
       let roam: { x: number; y: number; until: number; rest: boolean } | null = null;
+      let rest: Rest | null = null;
+      let nextRestTry = 0;
+      // When the current peck session ends.
+      let wasLanded = false;
+      let peckUntil = 0;
       let facing = -1; // -1 faces left (towards the hero headline)
       let turn = -1; // eases towards facing; drives the sprite's flip
       // Back on Home after the intro already played this page load: it's
@@ -159,6 +242,9 @@ export function BirdCompanion() {
       let snap = released;
       let mouseX = -1e4;
       let mouseY = -1e4;
+      // Someone is drawing in the Paint window (and a beat after they stop).
+      let drawing = false;
+      let drawingUntil = 0;
 
       const setX = gsap.quickSetter(bird, "x", "px");
       const setY = gsap.quickSetter(bird, "y", "px");
@@ -176,6 +262,10 @@ export function BirdCompanion() {
       const onRelease = () => {
         released = true;
       };
+      const onDrawing = (e: Event) => {
+        drawing = (e as CustomEvent<boolean>).detail;
+        if (!drawing) drawingUntil = time + PECK_LINGER;
+      };
       // The footer bird stays away until this one lands there.
       const homes = Array.from(document.querySelectorAll<HTMLElement>('[data-bird-perch="home"]'));
       for (const home of homes) home.setAttribute("data-bird-away", "");
@@ -183,6 +273,7 @@ export function BirdCompanion() {
       window.addEventListener("pointermove", onMove, { passive: true });
       window.addEventListener("resize", measure);
       window.addEventListener(RELEASE_EVENT, onRelease);
+      window.addEventListener(PAINT_DRAWING_EVENT, onDrawing);
 
       const tick = (_t: number, deltaMs: number) => {
         if (!released) return;
@@ -190,12 +281,13 @@ export function BirdCompanion() {
         if (dt <= 0) return;
         const vh = window.innerHeight;
 
-        // Perch nearest the reading line wins.
-        const perches = Array.from(
-          document.querySelectorAll<HTMLElement>("[data-bird-perch]"),
-          (el) => ({ el, mode: el.dataset.birdPerch! }),
-        );
-        let best: Perch | null = null;
+        // A watch perch (the Paint window, while it's showing) wins outright;
+        // otherwise the perch nearest the reading line does.
+        const watchEl = document.querySelector<HTMLElement>('[data-bird-perch="watch"]');
+        const perches = watchEl
+          ? []
+          : Array.from(document.querySelectorAll<HTMLElement>("[data-bird-perch]"), (el) => ({ el, mode: el.dataset.birdPerch! }));
+        let best: Perch | null = watchEl ? { el: watchEl, mode: "watch" } : null;
         let bestDist = Infinity;
         for (const p of perches) {
           const r = p.el.getBoundingClientRect();
@@ -214,7 +306,27 @@ export function BirdCompanion() {
           stillSince = time;
           roam = null;
         }
-        const roaming = best.mode !== "home" && time - stillSince > ROAM_AFTER;
+        // Long enough without scrolling: find somewhere to land and rest.
+        const watching = best.mode === "watch";
+        if (watching || best.mode === "home" || time - stillSince <= REST_AFTER) {
+          rest = null;
+          nextRestTry = 0;
+        } else if (!rest && time >= nextRestTry) {
+          rest = findRest(x + w / 2, y + h / 2, w, h);
+          if (!rest) nextRestTry = time + REST_RETRY;
+        }
+        if (rest) {
+          const r = rest.el.getBoundingClientRect();
+          tx = r.left + rest.dx;
+          ty = r.top - h + REST_FOOT;
+          // Its spot moved or vanished (layout change): look again later.
+          if (r.width === 0 || ty < EDGE + HEADER_CLEARANCE || ty > vh - h - EDGE) {
+            rest = null;
+            nextRestTry = time + REST_RETRY;
+          }
+        }
+
+        const roaming = !rest && !watching && best.mode !== "home" && time - stillSince > ROAM_AFTER;
         if (!roaming) roam = null;
         else {
           if (!roam || time > roam.until) {
@@ -239,7 +351,15 @@ export function BirdCompanion() {
         const dy = mouseY - cy;
         const dist = Math.hypot(dx, dy) || 1;
 
-        if (best.mode !== "home") {
+        // Reaching for it while it rests makes it take off.
+        if (rest && dist < SHY_RADIUS) {
+          rest = null;
+          stillSince = time;
+        }
+
+        if (rest || watching) {
+          // Standing on its edge: no shying, leaning or text dodging.
+        } else if (best.mode !== "home") {
           // Back off when the cursor gets close.
           if (dist < SHY_RADIUS) {
             const push = SHY_PUSH * (1 - dist / SHY_RADIUS);
@@ -259,7 +379,7 @@ export function BirdCompanion() {
           ty += (dy / dist) * lean;
         }
 
-        if (best.mode !== "home") ty += Math.sin(time * 2.4) * BOB;
+        if (best.mode !== "home" && !rest && !watching) ty += Math.sin(time * 2.4) * BOB;
         time += dt;
 
         // Steer like something with a top speed: aim for a velocity that
@@ -295,6 +415,27 @@ export function BirdCompanion() {
         }
         x += vx * dt;
         y += vy * dt;
+        // Touchdown: settle exactly on the edge instead of hovering over it.
+        const close = Math.hypot(tx - x, ty - y) < LANDED_DISTANCE;
+        const landed = rest !== null && close;
+        const sittingWatch = watching && close;
+        if (landed || sittingWatch) {
+          x = tx;
+          y = ty;
+          vx = vy = 0;
+        }
+        bird.classList.toggle("is-resting", landed);
+        // On the Paint window: sits up and watches, bobs along while drawing.
+        bird.classList.toggle("is-watching", sittingWatch);
+        bird.classList.toggle("is-pecking", sittingWatch && (drawing || time < drawingUntil));
+        if (landed && !wasLanded) peckUntil = time + PECK_FOR;
+        wasLanded = landed;
+        // Done pecking: back in the air. Restarting the stillness clock means
+        // it roams for a while, then finds another place to rest.
+        if (landed && time > peckUntil) {
+          rest = null;
+          stillSince = time;
+        }
         const speed = Math.hypot(vx, vy);
 
         // Face the way it's actually moving, so it's never tail-first. Only
@@ -339,6 +480,7 @@ export function BirdCompanion() {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("resize", measure);
         window.removeEventListener(RELEASE_EVENT, onRelease);
+        window.removeEventListener(PAINT_DRAWING_EVENT, onDrawing);
       };
     });
   });

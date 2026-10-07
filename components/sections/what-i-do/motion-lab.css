@@ -1,0 +1,927 @@
+/* ------------------------------------------------------------------
+   Motion lab (motion-lab.tsx): the "Motion and frontend" visual.
+   Sized to the media SLOT (100cqw), not the media box, so the accordion's
+   sweep reveals and hides it like a window, exactly as it does the images,
+   instead of squashing a live layout. Inside, each tile is its own size
+   container, so every demo scales with its tile (cqmin).
+   Base styles are the finished frames; animations only play on top.
+   ------------------------------------------------------------------ */
+
+/* A specimen sheet in the site's own language: light surface, tiles split by
+   dotted rules rather than boxed as cards, ink for the demos and the orange
+   used sparingly. No labels: the motion speaks for itself. */
+.lab {
+  --lab-tile: transparent; /* sits straight on the page for now */
+  /* Half-pixel and faint: a true hairline of dots on retina screens (a plain
+     1px dotted line elsewhere), there to separate, not to be noticed. */
+  --lab-dots: 0.5px dotted rgb(17 17 17 / 0.16);
+  --lab-line: var(--line);
+  --lab-text: var(--fg);
+  --lab-dim: var(--fg-dim);
+  --lab-accent: var(--blue);
+  --lab-raised: var(--bg);
+  --lab-ease: cubic-bezier(0.35, 0, 0, 1); /* the site's "lusion" curve */
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100cqw;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  background: var(--lab-tile);
+  color: var(--lab-text);
+  user-select: none;
+}
+
+/* Small slot (mobile): one row of the first three, so nothing gets tiny. */
+@container (max-width: 560px) {
+  .lab {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  /* Tiles are the board's only divs (the rules layer is a span). */
+  .lab__tile:nth-of-type(n + 4) {
+    display: none;
+  }
+
+  /* One row of three: two column lines, no row lines. Extra .lab so these
+     outrank the board-wide rules further down. */
+  .lab .lab__rule--h,
+  .lab .lab__rule--v.lab__rule--3 {
+    display: none;
+  }
+
+  .lab .lab__rule--v.lab__rule--1 {
+    left: calc(100% / 3);
+  }
+
+  .lab .lab__rule--v.lab__rule--2 {
+    left: calc(200% / 3);
+  }
+}
+
+.lab__tile {
+  position: relative;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* Dividers (the .lab__rules layer): dotted lines between tiles that fade
+   out toward their ends, so the board dissolves into the page instead of
+   drawing a hard grid across what's beside it (the big numeral). */
+.lab__rules {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.lab__rule {
+  position: absolute;
+}
+
+.lab__rule--v {
+  top: 0;
+  bottom: 0;
+  border-left: var(--lab-dots);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+}
+
+.lab__rule--h {
+  left: 0;
+  right: 0;
+  border-top: var(--lab-dots);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+}
+
+/* 4 columns x 3 rows. */
+.lab__rule--v.lab__rule--1 { left: 25%; }
+.lab__rule--v.lab__rule--2 { left: 50%; }
+.lab__rule--v.lab__rule--3 { left: 75%; }
+.lab__rule--h.lab__rule--1 { top: calc(100% / 3); }
+.lab__rule--h.lab__rule--2 { top: calc(200% / 3); }
+
+
+/* --- Easing: the curve draws itself, a dot rides it --------------------- */
+.lab-ease {
+  display: flex;
+  flex-direction: column;
+  gap: 6cqmin;
+  width: 68cqmin;
+}
+
+.lab-ease__graph {
+  width: 100%;
+  overflow: visible;
+}
+
+.lab-ease__axis {
+  fill: none;
+  stroke: var(--lab-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lab-ease__curve {
+  fill: none;
+  stroke: var(--lab-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: lab-draw 3.2s infinite;
+}
+
+.lab-ease__track {
+  position: relative;
+  height: 2px;
+  background: var(--lab-line);
+}
+
+.lab-ease__dot {
+  position: absolute;
+  top: 50%;
+  left: calc(100% - 5cqmin);
+  width: 5cqmin;
+  height: 5cqmin;
+  margin-top: -2.5cqmin;
+  border-radius: 50%;
+  background: var(--lab-text);
+  animation: lab-ride 3.2s infinite;
+}
+
+@keyframes lab-draw {
+  0% {
+    stroke-dashoffset: 1;
+    animation-timing-function: var(--lab-ease);
+  }
+  55%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes lab-ride {
+  0% {
+    left: 0;
+    animation-timing-function: var(--lab-ease);
+  }
+  55%,
+  100% {
+    left: calc(100% - 5cqmin);
+  }
+}
+
+/* --- Spring: drops in, overshoots, settles ------------------------------ */
+.lab-spring {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  width: 40cqmin;
+  height: 44cqmin;
+}
+
+.lab-spring__box {
+  width: 24cqmin;
+  height: 24cqmin;
+  border-radius: 4px;
+  background: var(--lab-accent);
+  transform-origin: 50% 100%;
+  animation: lab-spring 2.8s infinite;
+}
+
+.lab-spring__shadow {
+  position: absolute;
+  bottom: -3cqmin;
+  width: 26cqmin;
+  height: 3cqmin;
+  border-radius: 50%;
+  background: rgb(17 17 17 / 0.14);
+  filter: blur(2px);
+  animation: lab-spring-shadow 2.8s infinite;
+}
+
+@keyframes lab-spring {
+  0% {
+    transform: translateY(-140%);
+    opacity: 0;
+    animation-timing-function: linear(0, 0.3 8%, 0.92 20%, 1.12 30%, 1.05 40%, 0.98 52%, 1.01 66%, 1 80%, 1);
+  }
+  4% {
+    opacity: 1;
+  }
+  45%,
+  82% {
+    transform: none;
+    opacity: 1;
+    animation-timing-function: var(--lab-ease);
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes lab-spring-shadow {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+    animation-timing-function: linear(0, 0.3 8%, 0.92 20%, 1.12 30%, 1.05 40%, 0.98 52%, 1.01 66%, 1 80%, 1);
+  }
+  45%,
+  82% {
+    transform: none;
+    opacity: 1;
+    animation-timing-function: var(--lab-ease);
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* --- Mask reveal: lines rise out of their masks ------------------------- */
+.lab-mask {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 10cqmin;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.lab-mask__line {
+  display: block;
+  /* Clip vertically only, so a long line is never cut at its end. */
+  overflow-x: visible;
+  overflow-y: clip;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.lab-mask__line:last-child {
+  color: var(--lab-accent);
+}
+
+.lab-mask__text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: lab-rise 3.6s infinite both;
+}
+
+@keyframes lab-rise {
+  0% {
+    transform: translateY(110%);
+    animation-timing-function: var(--lab-ease);
+  }
+  30%,
+  78% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  94%,
+  100% {
+    transform: translateY(-110%);
+  }
+}
+
+/* --- Morph: a dot grows into the nav island and back -------------------- */
+.lab-morph__pill {
+  display: flex;
+  align-items: center;
+  gap: 4cqmin;
+  width: 70cqmin;
+  height: 16cqmin;
+  padding-inline: 2.5cqmin;
+  overflow: hidden;
+  border: 1px solid var(--lab-line);
+  border-radius: 999px;
+  background: var(--lab-raised);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 8px 24px -14px rgb(17 17 17 / 0.25);
+  animation: lab-morph 3.4s infinite;
+}
+
+.lab-morph__avatar {
+  flex: none;
+  width: 11cqmin;
+  height: 11cqmin;
+  border-radius: 50%;
+  background: var(--lab-accent);
+}
+
+.lab-morph__link,
+.lab-morph__cta {
+  flex: none;
+  height: 2.5cqmin;
+  border-radius: 2px;
+  background: var(--lab-dim);
+  animation: lab-morph-content 3.4s infinite;
+}
+
+.lab-morph__link {
+  width: 10cqmin;
+}
+
+.lab-morph__cta {
+  width: 16cqmin;
+  height: 9cqmin;
+  margin-left: auto;
+  border-radius: 999px;
+  background: var(--lab-text);
+}
+
+@keyframes lab-morph {
+  0%,
+  12% {
+    width: 16cqmin;
+    animation-timing-function: var(--lab-ease);
+  }
+  48%,
+  80% {
+    width: 70cqmin;
+    animation-timing-function: var(--lab-ease);
+  }
+  100% {
+    width: 16cqmin;
+  }
+}
+
+@keyframes lab-morph-content {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  50%,
+  74% {
+    opacity: 1;
+  }
+  86%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- Code: a GSAP call types itself out --------------------------------- */
+.lab-code {
+  margin: 0;
+  width: 76cqmin;
+  font-family: var(--label);
+  font-size: 5.6cqmin;
+  line-height: 1.6;
+  color: var(--lab-text);
+}
+
+.lab-code em {
+  font-style: normal;
+  color: var(--lab-accent);
+}
+
+.lab-code__line {
+  display: block;
+  width: calc(var(--chars) * 1ch);
+  overflow: hidden;
+  white-space: pre;
+  animation: lab-type 5.2s steps(var(--chars), end) infinite both;
+}
+
+.lab-code__line:nth-child(2) {
+  animation-delay: 0.55s;
+}
+
+.lab-code__line:nth-child(3) {
+  animation-delay: 0.9s;
+}
+
+.lab-code__line:nth-child(4) {
+  animation-delay: 1.5s;
+}
+
+/* Blinking caret after the last line. */
+.lab-code__line--last {
+  overflow: visible;
+}
+
+.lab-code__line--last::after {
+  content: "";
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.1em;
+  margin-left: 0.15ch;
+  vertical-align: -0.2em;
+  background: var(--lab-accent);
+  animation: lab-caret 0.9s steps(1) infinite;
+}
+
+@keyframes lab-type {
+  0% {
+    width: 0;
+  }
+  18%,
+  80% {
+    width: calc(var(--chars) * 1ch);
+  }
+  92%,
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes lab-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* --- 3D: a wireframe cube turning in CSS 3D ----------------------------- */
+.lab-cube {
+  --s: 30cqmin;
+  width: var(--s);
+  height: var(--s);
+  perspective: 600px;
+}
+
+.lab-cube__body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(35deg);
+  animation: lab-turn 9s linear infinite;
+}
+
+.lab-cube__face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--lab-text);
+  background: rgb(17 17 17 / 0.03);
+}
+
+.lab-cube__face--front {
+  border-color: var(--lab-accent);
+  background: rgb(235 89 57 / 0.12);
+}
+
+.lab-cube__face--front { transform: translateZ(calc(var(--s) / 2)); }
+.lab-cube__face--back { transform: rotateY(180deg) translateZ(calc(var(--s) / 2)); }
+.lab-cube__face--right { transform: rotateY(90deg) translateZ(calc(var(--s) / 2)); }
+.lab-cube__face--left { transform: rotateY(-90deg) translateZ(calc(var(--s) / 2)); }
+.lab-cube__face--top { transform: rotateX(90deg) translateZ(calc(var(--s) / 2)); }
+.lab-cube__face--bottom { transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); }
+
+@keyframes lab-turn {
+  from {
+    transform: rotateX(-24deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-24deg) rotateY(360deg);
+  }
+}
+
+/* ==================================================================
+   Everyday moments
+   ================================================================== */
+
+/* --- Like: the heart pops, a burst of sparks flies out ------------------ */
+.lab-like {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40cqmin;
+  height: 40cqmin;
+}
+
+/* A CSS heart: a rotated square with two round lobes. */
+.lab-like__heart {
+  position: relative;
+  width: 14cqmin;
+  height: 14cqmin;
+  margin-top: 4cqmin;
+  background: var(--lab-accent);
+  transform: rotate(-45deg);
+  animation: lab-like 2.6s infinite;
+}
+
+.lab-like__heart::before,
+.lab-like__heart::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.lab-like__heart::before {
+  top: -50%;
+  left: 0;
+}
+
+.lab-like__heart::after {
+  top: 0;
+  left: 50%;
+}
+
+.lab-like__spark {
+  position: absolute;
+  width: 3cqmin;
+  height: 3cqmin;
+  border-radius: 50%;
+  background: var(--lab-accent);
+  opacity: 0;
+  transform: rotate(var(--a)) translateY(-15cqmin);
+  animation: lab-spark 2.6s infinite;
+}
+
+@keyframes lab-like {
+  0%,
+  30% {
+    background: #d6d6d6;
+    transform: rotate(-45deg) scale(1);
+  }
+  38% {
+    background: var(--lab-accent);
+    transform: rotate(-45deg) scale(1.3);
+  }
+  46% {
+    transform: rotate(-45deg) scale(0.9);
+  }
+  54%,
+  86% {
+    background: var(--lab-accent);
+    transform: rotate(-45deg) scale(1);
+  }
+  94%,
+  100% {
+    background: #d6d6d6;
+  }
+}
+
+@keyframes lab-spark {
+  0%,
+  34% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateY(-6cqmin) scale(1);
+  }
+  38% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateY(-17cqmin) scale(0.4);
+  }
+}
+
+/* --- Toggle: flips on, the knob squishes as it travels ------------------ */
+.lab-toggle {
+  position: relative;
+  width: 36cqmin;
+  height: 20cqmin;
+  border-radius: 999px;
+  background: var(--lab-accent);
+  animation: lab-track 2.8s infinite;
+}
+
+.lab-toggle__knob {
+  position: absolute;
+  top: 2.5cqmin;
+  left: 2.5cqmin;
+  width: 15cqmin;
+  height: 15cqmin;
+  border-radius: 999px;
+  background: var(--lab-raised);
+  box-shadow: 0 1px 4px rgb(17 17 17 / 0.2);
+  transform: translateX(16cqmin);
+  animation: lab-knob 2.8s infinite;
+}
+
+@keyframes lab-track {
+  0%,
+  30% {
+    background: #d6d6d6;
+  }
+  40%,
+  80% {
+    background: var(--lab-accent);
+  }
+  90%,
+  100% {
+    background: #d6d6d6;
+  }
+}
+
+/* Width grows mid-travel, then the knob settles round at the far end. */
+@keyframes lab-knob {
+  0%,
+  30% {
+    transform: translateX(0);
+    width: 15cqmin;
+    animation-timing-function: var(--lab-ease);
+  }
+  36% {
+    transform: translateX(8cqmin);
+    width: 19cqmin;
+  }
+  44%,
+  80% {
+    transform: translateX(16cqmin);
+    width: 15cqmin;
+    animation-timing-function: var(--lab-ease);
+  }
+  86% {
+    transform: translateX(4cqmin);
+    width: 19cqmin;
+  }
+  94%,
+  100% {
+    transform: translateX(0);
+    width: 15cqmin;
+  }
+}
+
+/* --- Checkbox: ticks, then strikes the task through --------------------- */
+.lab-check {
+  display: flex;
+  align-items: center;
+  gap: 5cqmin;
+}
+
+.lab-check__box {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 15cqmin;
+  height: 15cqmin;
+  border: 1.5px solid var(--lab-accent);
+  border-radius: 4px;
+  background: var(--lab-accent);
+  animation: lab-box 3s infinite;
+}
+
+/* A tick: two borders of a rotated box. */
+.lab-check__tick {
+  width: 4cqmin;
+  height: 8cqmin;
+  margin-top: -1.5cqmin;
+  border-right: 2px solid var(--lab-raised);
+  border-bottom: 2px solid var(--lab-raised);
+  transform: rotate(45deg) scale(1);
+  animation: lab-tick 3s infinite;
+}
+
+.lab-check__text {
+  position: relative;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 11cqmin;
+  letter-spacing: -0.03em;
+  color: var(--lab-dim);
+  animation: lab-done 3s infinite;
+}
+
+.lab-check__text::after {
+  content: "";
+  position: absolute;
+  top: 54%;
+  left: -2%;
+  width: 104%;
+  height: 1.5px;
+  background: var(--lab-text);
+  transform-origin: left;
+  animation: lab-strike 3s infinite;
+}
+
+@keyframes lab-box {
+  0%,
+  24% {
+    background: transparent;
+    border-color: var(--lab-text);
+  }
+  30%,
+  84% {
+    background: var(--lab-accent);
+    border-color: var(--lab-accent);
+  }
+  92%,
+  100% {
+    background: transparent;
+    border-color: var(--lab-text);
+  }
+}
+
+@keyframes lab-tick {
+  0%,
+  26% {
+    transform: rotate(45deg) scale(0);
+  }
+  34% {
+    transform: rotate(45deg) scale(1.25);
+  }
+  40%,
+  84% {
+    transform: rotate(45deg) scale(1);
+  }
+  90%,
+  100% {
+    transform: rotate(45deg) scale(0);
+  }
+}
+
+@keyframes lab-strike {
+  0%,
+  36% {
+    transform: scaleX(0);
+    animation-timing-function: var(--lab-ease);
+  }
+  52%,
+  84% {
+    transform: scaleX(1);
+  }
+  92%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes lab-done {
+  0%,
+  40% {
+    color: var(--lab-text);
+  }
+  52%,
+  84% {
+    color: var(--lab-dim);
+  }
+  92%,
+  100% {
+    color: var(--lab-text);
+  }
+}
+
+/* --- Typing: the three dots in a chat bubble ---------------------------- */
+.lab-typing {
+  display: flex;
+  align-items: center;
+  gap: 3cqmin;
+  padding: 6cqmin 8cqmin;
+  border: 1px solid var(--lab-line);
+  border-radius: 10cqmin 10cqmin 10cqmin 2cqmin;
+  background: var(--lab-raised);
+}
+
+.lab-typing__dot {
+  width: 4cqmin;
+  height: 4cqmin;
+  border-radius: 50%;
+  background: var(--lab-dim);
+  animation: lab-bounce 1.2s infinite;
+}
+
+@keyframes lab-bounce {
+  0%,
+  60%,
+  100% {
+    transform: none;
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3cqmin);
+    opacity: 1;
+  }
+}
+
+/* --- Toast: slides in, its timer runs down, slides away ----------------- */
+.lab-toast {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.lab-toast__card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6cqmin;
+  padding: 5cqmin 6cqmin;
+  overflow: hidden;
+  border: 1px solid var(--lab-line);
+  border-radius: 4px;
+  background: var(--lab-raised);
+  box-shadow: 0 10px 24px -14px rgb(17 17 17 / 0.3);
+  font-size: 7cqmin;
+  line-height: 1;
+  white-space: nowrap;
+  animation: lab-toast 3.6s infinite;
+}
+
+.lab-toast__action {
+  color: var(--lab-accent);
+  font-weight: 500;
+}
+
+.lab-toast__timer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--lab-accent);
+  transform-origin: left;
+  transform: scaleX(0.55);
+  animation: lab-timer 3.6s infinite;
+}
+
+@keyframes lab-toast {
+  0%,
+  8% {
+    transform: translateY(-260%);
+    opacity: 0;
+    animation-timing-function: var(--lab-ease);
+  }
+  26%,
+  80% {
+    transform: none;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  94%,
+  100% {
+    transform: translateY(-260%);
+    opacity: 0;
+  }
+}
+
+@keyframes lab-timer {
+  0%,
+  26% {
+    transform: scaleX(1);
+  }
+  80%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+/* --- Skeleton: a placeholder card shimmering while it loads ------------- */
+.lab-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 5cqmin;
+  width: 72cqmin;
+}
+
+.lab-skeleton__avatar,
+.lab-skeleton__bar {
+  background: linear-gradient(90deg, #e2e2e2 0%, #f3f3f3 40%, #e2e2e2 80%) 0 0 / 300% 100%;
+  animation: lab-shimmer 1.6s linear infinite;
+}
+
+.lab-skeleton__avatar {
+  flex: none;
+  width: 16cqmin;
+  height: 16cqmin;
+  border-radius: 50%;
+}
+
+.lab-skeleton__lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3cqmin;
+}
+
+.lab-skeleton__bar {
+  height: 4cqmin;
+  border-radius: 2px;
+}
+
+.lab-skeleton__bar--short {
+  width: 60%;
+}
+
+@keyframes lab-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+/* Reduced motion: the finished frames, standing still. */
+@media (prefers-reduced-motion: reduce) {
+  .lab *,
+  .lab *::after {
+    animation: none !important;
+  }
+}

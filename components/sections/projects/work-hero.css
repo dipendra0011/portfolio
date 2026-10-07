@@ -1,7 +1,10 @@
 /* Starts hidden so the server-rendered word doesn't flash before the load
    tweens in work-hero.tsx take over. Reduced motion never hides it. */
 @media (prefers-reduced-motion: no-preference) {
-  .work-hero {
+  .work-hero,
+  /* The project grid waits for the title: otherwise it paints straight from
+     the server HTML while the title is still hidden until the script runs. */
+  .work-grid {
     visibility: hidden;
   }
 }
@@ -15,16 +18,21 @@
   white-space: nowrap;
   font-family: var(--display);
   font-weight: 500;
-  font-size: clamp(5.5rem, 21vw, 30rem);
+  font-size: min(clamp(5.5rem, 21vw, 30rem), 40vh);
   line-height: 0.8;
   letter-spacing: -0.04em;
   text-transform: uppercase;
 }
 
-/* SplitText masks: room for the glyphs' overshoot inside the clip. */
+/* SplitText masks: room for the glyphs' overshoot inside the clip. The word
+   is set with negative letter-spacing, so each letter's box is narrower than
+   the glyph and the W's outer strokes were being sliced; the side padding
+   gives them room and the matching negative margin keeps the layout put. */
 .work-hero__title > div {
   padding-block: 0.06em;
   margin-block: -0.06em;
+  padding-inline: 0.08em;
+  margin-inline: -0.08em;
 }
 
 .work-hero__count {

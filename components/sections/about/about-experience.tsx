@@ -25,6 +25,14 @@ const pad = (n: number) => String(n).padStart(2, "0");
 /** "2021 – Now" → 2021. */
 const startYear = (years: string) => years.match(/\d{4}/)?.[0] ?? years;
 
+/** The end of the span, set on its own line under the start year:
+ *  "2022 – 2024" → "to 2024", "2021 – Now" → "to Now", a single year → "". */
+const endLabel = (years: string) => {
+  if (/now/i.test(years)) return "to Now";
+  const [first, second] = years.match(/\d{4}/g) ?? [];
+  return second && second !== first ? `to ${second}` : "";
+};
+
 /** Start and end as numbers; "Now" (or a single year) resolves against `now`. */
 const yearRange = (years: string, now: number) => {
   const found = years.match(/\d{4}/g)?.map(Number) ?? [now];
@@ -92,6 +100,9 @@ export function AboutExperience({ roles }: { roles: Role[] }) {
         const years = gsap.utils
           .toArray<HTMLElement>(".about-exp__year", root)
           .map((layer) => layer.querySelectorAll<HTMLElement>(".about-exp__digit"));
+        const ends = gsap.utils
+          .toArray<HTMLElement>(".about-exp__end", root)
+          .map((layer) => layer.querySelectorAll<HTMLElement>(".about-exp__digit"));
         const span = root.querySelector<HTMLElement>(".about-exp__span")!;
         const dot = root.querySelector<HTMLElement>(".about-exp__dot")!;
 
@@ -124,10 +135,58 @@ export function AboutExperience({ roles }: { roles: Role[] }) {
           gsap.set(body, { height: i === 0 ? "auto" : 0 });
           gsap.set(content, { opacity: i === 0 ? 1 : 0 });
         });
-        years.forEach((digits, i) => gsap.set(digits, { yPercent: i === 0 ? 0 : 100 }));
+        [...years, ...ends].forEach((digits) => gsap.set(digits, { yPercent: 100 }));
+        gsap.set([years[0], ends[0]], { yPercent: 0 });
         gsap.set(span, { left: `${marks[0].left}%`, width: `${marks[0].width}%` });
         gsap.set(dot, { left: `${marks[0].left}%` });
         gsap.set(section, { backgroundColor: bands[0] });
+
+        // Odometer: only the digits that change roll (2021 → 2022 turns the
+        // last one). Unchanged digits swap layers unseen at the midpoint, so
+        // the number never flickers.
+        const roll = (from: NodeListOf<HTMLElement>, to: NodeListOf<HTMLElement>, at: number) => {
+          const sameLength = from.length === to.length;
+          let rolled = 0;
+          to.forEach((digit, d) => {
+            const out = from[d];
+            if (sameLength && out && out.textContent === digit.textContent) {
+              const swap = at + STEP_MOVE / 2;
+              tl.fromTo(out, { yPercent: 0 }, { yPercent: 100, duration: 0.001 }, swap).fromTo(
+                digit,
+                { yPercent: 100 },
+                { yPercent: 0, duration: 0.001 },
+                swap
+              );
+              return;
+            }
+            const delay = rolled++ * DIGIT_STAGGER;
+            if (out) {
+              tl.fromTo(
+                out,
+                { yPercent: 0 },
+                { yPercent: -100, duration: STEP_MOVE * 0.6, ease: "power2.in" },
+                at + delay
+              );
+            }
+            tl.fromTo(
+              digit,
+              { yPercent: 100 },
+              { yPercent: 0, duration: STEP_MOVE * 0.6, ease: "power2.out" },
+              at + STEP_MOVE * 0.3 + delay
+            );
+          });
+          // A shorter incoming year leaves digits behind; roll those out too.
+          from.forEach((out, d) => {
+            if (d >= to.length) {
+              tl.fromTo(
+                out,
+                { yPercent: 0 },
+                { yPercent: -100, duration: STEP_MOVE * 0.6, ease: "power2.in" },
+                at
+              );
+            }
+          });
+        };
 
         const total = HOLD_START + (items.length - 1) * STEP + HOLD_END;
         // The role at timeline time t: each hand-off flips at its midpoint.
@@ -198,52 +257,9 @@ export function AboutExperience({ roles }: { roles: Role[] }) {
               at
             );
 
-          // Odometer: only the digits that change roll (2021 → 2022 turns
-          // the last one). Unchanged digits swap layers unseen at the
-          // midpoint, so the number never flickers.
-          const from = years[i];
-          const to = years[i + 1];
-          const sameLength = from.length === to.length;
-          let rolled = 0;
-          to.forEach((digit, d) => {
-            const out = from[d];
-            if (sameLength && out && out.textContent === digit.textContent) {
-              const swap = at + STEP_MOVE / 2;
-              tl.fromTo(out, { yPercent: 0 }, { yPercent: 100, duration: 0.001 }, swap).fromTo(
-                digit,
-                { yPercent: 100 },
-                { yPercent: 0, duration: 0.001 },
-                swap
-              );
-              return;
-            }
-            const delay = rolled++ * DIGIT_STAGGER;
-            if (out) {
-              tl.fromTo(
-                out,
-                { yPercent: 0 },
-                { yPercent: -100, duration: STEP_MOVE * 0.6, ease: "power2.in" },
-                at + delay
-              );
-            }
-            tl.fromTo(
-              digit,
-              { yPercent: 100 },
-              { yPercent: 0, duration: STEP_MOVE * 0.6, ease: "power2.out" },
-              at + STEP_MOVE * 0.3 + delay
-            );
-          });
-          // A shorter incoming year leaves digits behind; roll those out too.
-          from.forEach((out, d) => {
-            if (d >= to.length) {
-              tl.fromTo(
-                out,
-                { yPercent: 0 },
-                { yPercent: -100, duration: STEP_MOVE * 0.6, ease: "power2.in" },
-                at
-              );
-            }
-          });
+          // The start year and its end-year superscript roll on the same odometer.
+          roll(years[i], years[i + 1], at);
+          roll(ends[i], ends[i + 1], at);
         });
         // Pads the timeline out to its full length for the closing hold.
         tl.set({}, {}, total);
@@ -282,8 +298,6 @@ export function AboutExperience({ roles }: { roles: Role[] }) {
     setActive(next);
   };
 
-  const current = roles[Math.max(active, 0)];
-
   return (
     <div ref={rootRef} className="about-exp grid md:grid-cols-12 md:gap-x-6">
       {/* Dial — desktop pin only (shown by about.css). Decorative: the same
@@ -296,20 +310,34 @@ export function AboutExperience({ roles }: { roles: Role[] }) {
           </span>
         </div>
 
-        <div className="about-exp__years">
-          {roles.map((role) => (
-            <span key={`${role.years}-${role.title}`} className="about-exp__year">
-              {Array.from(startYear(role.years)).map((digit, d) => (
-                // Digits never reorder, so the index is a stable key
-                <span key={d} className="about-exp__digit">
-                  {digit}
-                </span>
-              ))}
-            </span>
-          ))}
+        {/* Start year big, the end of the span on the line under it ("to
+            Now"). Each is a stack of one layer per role, rolled like an
+            odometer. */}
+        <div className="flex flex-col gap-3">
+          <div className="about-exp__years">
+            {roles.map((role) => (
+              <span key={`${role.years}-${role.title}`} className="about-exp__year">
+                {Array.from(startYear(role.years)).map((digit, d) => (
+                  // Digits never reorder, so the index is a stable key
+                  <span key={d} className="about-exp__digit">
+                    {digit}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </div>
+          <div className="about-exp__ends">
+            {roles.map((role) => (
+              <span key={`${role.years}-${role.title}`} className="about-exp__end">
+                {Array.from(endLabel(role.years)).map((char, d) => (
+                  <span key={d} className="about-exp__digit">
+                    {char}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </div>
         </div>
-
-        <p className="text-[15px] leading-none text-bg/80">{current.years}</p>
 
         <div className="flex flex-col gap-3">
           <div className="about-exp__track">

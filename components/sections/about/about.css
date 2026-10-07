@@ -7,7 +7,10 @@
 /* Intro starts hidden so the server-rendered text doesn't flash before
    about-motion.tsx's load tweens take over (same guard as the case study). */
 @media (prefers-reduced-motion: no-preference) {
-  .about-load {
+  .about-load,
+  /* The manifesto sits in the first screen too; without this it paints from
+     the server HTML before the intro above it has even appeared. */
+  .about-lead {
     visibility: hidden;
   }
 }
@@ -15,6 +18,12 @@
 /* SplitText words are inline-blocks; they'd each inherit the manifesto's
    first-line indent and push the line apart. */
 .about-manifesto__word {
+  text-indent: 0;
+}
+
+/* Split into masked lines for its entrance: each line mask would inherit the
+   first-line indent too, so only the first keeps it. */
+.about-manifesto > div + div {
   text-indent: 0;
 }
 
@@ -136,13 +145,33 @@
   padding-block: 0.04em;
 }
 
-.about-exp__year {
+/* The end of the span ("to 2024", "to Now") on the line under the year:
+   same face, same odometer, a step down in size and weight of colour. */
+.about-exp__ends {
+  display: grid;
+  overflow: clip;
+  /* Holds its height on a single-year role, so the dial never jumps. */
+  min-height: 1.1em;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2rem, 3.6vw, 3.75rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: color-mix(in srgb, var(--bg) 78%, transparent);
+  padding-block: 0.05em;
+}
+
+/* One layer per role, stacked in the same cell. */
+.about-exp__year,
+.about-exp__end {
   grid-area: 1 / 1;
   display: flex;
 }
 
 .about-exp__digit {
   display: inline-block;
+  /* Keeps the space in "to Now" from collapsing to nothing. */
+  white-space: pre;
   will-change: transform;
 }
 

@@ -2,12 +2,15 @@
 
 import { useEffect, useRef } from "react";
 import { gsap, MOTION_OK } from "@/lib/gsap";
+import "./view-more-cursor.css";
 
-/** "View more" circle that follows the cursor across a linked card's image.
- *  Rendered inside .project-card__media and listens on that parent, so it
- *  stacks above the WebGL canvas and is clipped by the rounded corners.
- *  Position is driven here; the open/close scale is pure CSS on card hover. */
-export function ViewMoreCursor() {
+/** Orange circle with a label that follows the cursor across its parent,
+ *  standing in for the pointer. On the project cards it's rendered inside
+ *  .project-card__media ("View more"), so it stacks above the WebGL canvas
+ *  and is clipped by the rounded corners; the case study reuses it on its
+ *  "Visit site" link. Position is driven here; the open/close scale is CSS
+ *  on the parent's hover, set by whoever uses it. */
+export function ViewMoreCursor({ label = "View more" }: { label?: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,7 +51,7 @@ export function ViewMoreCursor() {
 
   return (
     <div className="project-view" ref={ref} aria-hidden>
-      <span className="project-view__circle">View more</span>
+      <span className="project-view__circle">{label}</span>
     </div>
   );
 }

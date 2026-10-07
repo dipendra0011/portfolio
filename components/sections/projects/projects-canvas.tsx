@@ -15,6 +15,7 @@ import {
   type Texture,
 } from "three";
 import { ScrollTrigger, MOTION_OK } from "@/lib/gsap";
+import { DEAL_STAGGER, RELEASE_EVENT, isHeld } from "./entrance-hold";
 
 /*
  * Project thumbnails as WebGL planes:
@@ -408,6 +409,8 @@ export function ProjectsCanvas({ gridRef }: { gridRef: RefObject<HTMLDivElement 
       scrollStrength += (0 - scrollStrength) * (1 - Math.exp(-WARP_DECAY * dt));
       scrollStrength = Math.min(scrollStrength, 1);
       const warp = Math.min(WARP_MAX, scrollStrength * WARP_GAIN);
+      // Held by the page (Work title still landing): stay parked at the start.
+      const held = isHeld(grid);
 
       cards.forEach((card) => {
         const u = card.uniforms;
@@ -419,7 +422,7 @@ export function ProjectsCanvas({ gridRef }: { gridRef: RefObject<HTMLDivElement 
         // resets the moment it leaves, so it replays on every re-entry.
         const top = canvasRect.top + BLEED + card.rect.top;
         const inView = top < vh && top + card.rect.height > 0;
-        card.showTime = inView ? card.showTime + dt : 0;
+        card.showTime = inView && !held ? card.showTime + dt : 0;
         u.uShow.value = expoOut(saturate(card.showTime / SHOW_DURATION));
         const slide = 1 - expoOut(saturate(card.showTime / SLIDE_DURATION));
         card.mesh.position.set(
@@ -473,10 +476,24 @@ export function ProjectsCanvas({ gridRef }: { gridRef: RefObject<HTMLDivElement 
     );
     visibilityObserver.observe(grid);
 
+    // Released: deal the on-screen cards in one after another. A negative
+    // clock is a wait (the entrance saturates at 0 until it passes).
+    const onRelease = () => {
+      const vh = window.innerHeight;
+      const canvasTop = canvas.getBoundingClientRect().top;
+      let order = 0;
+      cards.forEach((card) => {
+        const top = canvasTop + BLEED + card.rect.top;
+        if (top < vh && top + card.rect.height > 0) card.showTime = -DEAL_STAGGER * order++;
+      });
+    };
+    window.addEventListener(RELEASE_EVENT, onRelease);
+
     return () => {
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
+      window.removeEventListener(RELEASE_EVENT, onRelease);
       cleanups.forEach((fn) => fn());
       cards.forEach((card) => {
         scene.remove(card.mesh);

@@ -18,28 +18,29 @@
 .roll-text__char {
   display: inline-block;
   white-space: pre;
+  transition: color 240ms var(--ease-nav);
+  /* Letter roll, switched off for now: hover only changes the colour.
+     To bring it back, restore these two lines and the transform rules below.
   text-shadow: 0 var(--roll-distance) var(--roll-color);
   transition: transform 600ms var(--ease-roll);
   transition-delay: calc(var(--i) * 18ms);
+  */
 }
 
 @media (hover: hover) {
   .roll-trigger:hover .roll-text__char {
-    transform: translateY(calc(-1 * var(--roll-distance)));
+    color: var(--roll-color);
+    /* transform: translateY(calc(-1 * var(--roll-distance))); */
   }
 }
 
 .roll-trigger:focus-visible .roll-text__char {
-  transform: translateY(calc(-1 * var(--roll-distance)));
+  color: var(--roll-color);
+  /* transform: translateY(calc(-1 * var(--roll-distance))); */
 }
 
 @media (prefers-reduced-motion: reduce) {
   .roll-text__char {
     transition: none;
-    transform: none !important;
-  }
-  .roll-trigger:hover .roll-text__char,
-  .roll-trigger:focus-visible .roll-text__char {
-    color: var(--roll-color);
   }
 }

@@ -13,6 +13,7 @@ import {
   SplitText,
 } from "@/lib/gsap";
 import { ArrowRight } from "./arrow-right";
+import { DEAL_STAGGER, RELEASE_EVENT, isHeld } from "./entrance-hold";
 import { ViewMoreCursor } from "./view-more-cursor";
 import { RollText } from "@/components/motion/roll-text";
 import { PROJECTS } from "@/config/projects";
@@ -132,6 +133,9 @@ export function ProjectsSection({ intro = true }: { intro?: boolean }) {
         // SplitText's spans aren't unwound by gsap's context revert, so each
         // instance is reverted explicitly in this condition's cleanup.
         const splits: InstanceType<typeof SplitText>[] = [];
+        // Each card's on-screen trigger and entrance, so a held entrance can
+        // be dealt in on release.
+        const entrances: { trigger: ScrollTrigger; play: (delay: number) => void }[] = [];
 
         gsap.utils.toArray<HTMLElement>(".project-card").forEach((card) => {
           const indexEl = card.querySelector<HTMLElement>(
@@ -218,7 +222,7 @@ export function ProjectsSection({ intro = true }: { intro?: boolean }) {
             typewriter.t = 0;
             renderTags();
           };
-          const play = () => {
+          const play = (delay = 0) => {
             reset();
             if (cols.length) {
               played.push(
@@ -226,7 +230,7 @@ export function ProjectsSection({ intro = true }: { intro?: boolean }) {
                   yPercent: 0,
                   duration: ROLL_DURATION,
                   ease: "expo.inOut",
-                  delay: (i: number) => rollDelay(i),
+                  delay: (i: number) => delay + rollDelay(i),
                 }),
               );
             }
@@ -237,6 +241,7 @@ export function ProjectsSection({ intro = true }: { intro?: boolean }) {
                   duration:
                     (indexText.length + RANDOM_TAIL) / LETTERS_PER_SECOND,
                   ease: "none",
+                  delay,
                   onUpdate: renderTags,
                 }),
               );
@@ -249,15 +254,31 @@ export function ProjectsSection({ intro = true }: { intro?: boolean }) {
           // screen, reset once it's fully off — so the text replays on every
           // re-entry, in step with the WebGL image entrance
           // (projects-canvas.tsx uses the identical on-screen test).
-          ScrollTrigger.create({
+          const trigger = ScrollTrigger.create({
             trigger: card,
             start: "top bottom",
             end: "bottom top",
-            onToggle: (self) => (self.isActive ? play() : reset()),
+            onToggle: (self) => {
+              if (!self.isActive) reset();
+              // Held by the page: the release below plays it instead.
+              else if (!isHeld(card)) play();
+            },
           });
+          entrances.push({ trigger, play });
         });
 
+        // Released by the page: deal the on-screen cards in, in order, in step
+        // with the WebGL entrance (projects-canvas.tsx staggers the same way).
+        const onRelease = () => {
+          let order = 0;
+          entrances.forEach(({ trigger, play }) => {
+            if (trigger.isActive) play(DEAL_STAGGER * order++);
+          });
+        };
+        window.addEventListener(RELEASE_EVENT, onRelease);
+
         return () => {
+          window.removeEventListener(RELEASE_EVENT, onRelease);
           splits.forEach((split) => split.revert());
           // Restore the untouched index text (the typewriter wrote over it).
           gsap.utils

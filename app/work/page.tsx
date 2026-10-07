@@ -16,7 +16,10 @@ export default function WorkPage() {
         <WorkHero title="Work" count={PROJECTS.length} />
         {/* This page is the full list, so no "Selected works" heading or
             "See all works" link. */}
-        <ProjectsSection intro={false} />
+        {/* Held until the title lands; WorkHero releases it. */}
+        <div className="work-grid" data-hold-entrance>
+          <ProjectsSection intro={false} />
+        </div>
       </main>
     </SmoothScroll>
   );
